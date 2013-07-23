@@ -75,62 +75,6 @@ function sortHand(hand)
 	table.sort(hand, function(a,b) return a.num < b.num end)
 end
 
---find the index of a card in a group of cards
-function hasCardNum(cards, cardnum)
-	for i,j in ipairs(cards) do
-		if j.num == cardnum then return i end
-	end
-end
-
-function doOp(player, hand, last)
-	local plays;
-	print("---Player " .. player .. "'s hand---")
-	for i,j in ipairs(hand) do
-		print("("..i.."): ".. cardString(j))
-	end
-	while true do
-		print("\nWhat to do?")
-		local actions = io.read()
-		local actionst = {}
-		for action in actions:gmatch("%w+") do table.insert(actionst, action) end
-		if actionst[1] == "pass" then return nil
-		elseif actionst[1] == "play" then 
-			table.remove(actionst,1)
-			for i,j in ipairs(actionst) do
-				if hasCardNum(hand, j) then
-					table.insert(plays, hand[i])
-				else
-					print("Don't have those cards")
-					plays = nil
-					break
-				end
-			end
-			if (checkPlay(last, plays)) then return plays
-			else print("Invalid play") end
-		else print("Invalid action") end
-	end
-end
-	
--- d = genCards()
--- shuffle(d)
--- for i,k in ipairs(d) do print(i, cardString(k)) end
---
---[[
-q = genDeck(9)
-for i=1, #q do
-	hand = q[i]
-	print("---Player " .. i .. "---")
-	sortHand(hand)
-	for j=1, #hand do
-		print(cardString(hand[j]))
-	end
-	h = hasCardNum({{num=4, suit="H"}}, {num = 4})
-end
---gameTest();
-
---]]
-
-
 -- determine the value and count of pairs, and the number of high cards
 function checkPairs(cards, high)
 	local pairnum = 0
@@ -150,11 +94,12 @@ end
 -- check if a play will beat a previous play
 function checkPlay(lastCards, currCards, max)
 	max = max or 14
+	--count the pairs and high cards of the curr and last play
 	lastNum, lastCount, lastHighCount = checkPairs(lastCards, max)
 	currNum, currCount, currHighCount = checkPairs(currCards, max)
 	-- mismatch
-	if currNum == nil then return false end
-	if lastNum == nil then error("Invalid history in rule check!") end
+	if not currNum then return false end
+	if not lastNum then error("Invalid history in rule check!") end
 	-- pass
 	if currNum == 0 and currHighCount == 0 then return true end
 	--only ace
@@ -162,7 +107,7 @@ function checkPlay(lastCards, currCards, max)
 		return false
 	end
 	-- typical play
-	if currNum > lastNum and lastCount == currCount then
+	if currNum > lastNum and lastCount == currCount and currHighCount == 0 then
 		return true
 	end
 	-- ace 
@@ -173,17 +118,19 @@ function checkPlay(lastCards, currCards, max)
 end
 
 --generate a game state
-function genGameState()
+function genGameState(players)
+	players = players or 2
 	state = {}
 	state.currPlayer = 1
-	state.maxPlayers = 2
-	state.remainingPlayers = 2
-	state.hands = genDeck(2)
+	state.maxPlayers = players
+	state.remainingPlayers = players 
+	state.hands = genDeck(players)
 	state.out = {} --boolean table of out players
 	state.lastPlay = {}
 	state.lastPlayerPlay = -1
 	state.president = nil
 	state.winner = nil
+	state.gameInProgress = true
 	return state
 end
 
@@ -199,55 +146,85 @@ function removeCards(cards, removecards)
 	end
 end
 
+--check if cards are a subset of hand
+function hasInHand(hand, cards)
+	local findex = {}
+	local found 
+	for i,j in ipairs(cards) do
+		found = false
+		for k,l in ipairs(hand) do
+			if l.num == j.num and l.suit == j.suit and not findex[k] then
+				findex[k] = true 
+				found = true
+			end
+		end
+		if not found then return false end
+	end
+	return true
+end
+
+function advancePlayer(state)
+	--advance to next player	
+	state.currPlayer = state.currPlayer + 1
+	--find next remaining player
+	while state.out[state.currPlayer] == true do
+		state.currPlayer = state.currPlayer + 1
+	end
+	if (state.currPlayer > state.maxPlayers) then 
+		state.currPlayer = 1
+	end
+	while state.out[state.currPlayer] == true do
+		state.currPlayer = state.currPlayer + 1
+	end
+end
+
 
 --update the game state (call with nil to restart)
 function gameUpdate(state, play)
+	-- create game if no arguments
 	if not state then 
 		state = genGameState()
 		return state
 	end
-	if checkPlay(state.lastPlay, play) then
-		if #play ~= 0 then
-			state.lastPlay = play
-			state.lastPlayerPlay = state.currPlayer
-			removeCards(getHand(state,state.currPlayer), play)
-			--check for player out
-			if #getHand(state,state.currPlayer) == 0 then
-				state.out[state.currPlayer] = true
-				--assign president
-				if state.remainingPlayers == state.maxPlayers then
-					state.president = state.currPlayer
-				end
-				state.remainingPlayers = state.remainingPlayers - 1
-			end
-		end
+	-- ensure game is in progress
+	if not state.gameInProgress then return nil end
 
-		--advance to next player	
-		state.currPlayer = state.currPlayer + 1
-		--find next remaining player
-		while state.out[state.currPlayer] == true do
-			state.currPlayer = state.currPlayer + 1
-		end
-		if (state.currPlayer > state.maxPlayers) then 
-			state.currPlayer = 1
-		end
-		while state.out[state.currPlayer] == true do
-			state.currPlayer = state.currPlayer + 1
-		end
-		-- last is klootzak
-		if state.remainingPlayers == 1 then
-			state.klootzak = state.currPlayer
-			return -1 
-		end
-		-- everone passed, can play anything
-		if state.lastPlayerPlay == state.currPlayer then
-			state.lastPlay = {}
-		end
-
-		return state.currPlayer, state.lastPlay, true
-	else
+	-- check if a play is not valid or doesnt beat last hand
+	if not hasInHand(getHand(state, state.currPlayer), play) or
+	not checkPlay(state.lastPlay, play) then
 		return state.currPlayer, state.lastPlay, false
 	end
+
+	-- if play was not a pass
+	if #play ~= 0 then
+		state.lastPlay = play
+		state.lastPlayerPlay = state.currPlayer
+		removeCards(getHand(state,state.currPlayer), play)
+		--check for player out
+		if #getHand(state,state.currPlayer) == 0 then
+			state.out[state.currPlayer] = true
+			--assign president
+			if state.remainingPlayers == state.maxPlayers then
+				state.president = state.currPlayer
+			end
+			state.remainingPlayers = state.remainingPlayers - 1
+		end
+	end
+
+	--switch to next player
+	advancePlayer(state)
+
+	-- last is klootzak
+	if state.remainingPlayers == 1 then
+		state.klootzak = state.currPlayer
+		return -1 
+	end
+	-- everone passed, can play anything
+	if state.lastPlayerPlay == state.currPlayer then
+		state.lastPlay = {}
+	end
+
+	return state.currPlayer, state.lastPlay, true
 	
 end
 
@@ -283,7 +260,6 @@ function play()
 		end
 	end
 end
-play()
 
 
 function ruleCheck(current, play, correct, msg, max)
@@ -329,6 +305,14 @@ function runRuleChecks()
 	ruleCheck({14,14,9}, {8,14}, true, "Two ace and single vs lower")
 	ruleCheck({14,14,9}, {10,14}, true, "Two ace and single vs higher and ace")
 	ruleCheck({14,14,9}, {8,14}, true, "Two ace and single vs higher and ace")
+	ruleCheck({5}, {14, 13, 13}, true, "Single vs ace and double")
+	ruleCheck({5,5}, {14, 12, 12}, false, "Double vs ace and high double")
+	ruleCheck({5,5}, {14, 1, 1}, false, "Double vs ace and low double")
+	ruleCheck({5}, {14, 7, 8}, false, "Single vs ace and mismatch double")
+	ruleCheck({5,5}, {14, 14, 12, 12}, true, "Double vs double ace high dbl")
+	ruleCheck({5,5}, {14, 14, 1, 1}, true, "Double vs double ace and low dbl")
+	ruleCheck({5,5}, {14, 14, 14, 1, 1}, true, "Double vs tpl ace and low dbl")
 	print("All rule checks pass.")
 end
 --runRuleChecks()
+play()
