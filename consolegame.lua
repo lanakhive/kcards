@@ -1,4 +1,5 @@
 kz = require("klootzak")
+dumbai = require("dumbai")
 
 function clearScreen()
 	os.execute("cls")
@@ -29,12 +30,17 @@ function play()
 		for i,j in ipairs(hand) do
 			print("("..i.."): ".. cardString(j))
 		end
-		--get play and update state
-		print("What to play?")
-		input = io.read()
 		local actionst = {}
-		for action in input:gmatch("%w+") do 
-			table.insert(actionst, hand[tonumber(action)]) end
+		if player == 1 then
+			--get play and update state
+			print("What to play?")
+			input = io.read()
+			for action in input:gmatch("%w+") do 
+				table.insert(actionst, hand[tonumber(action)])
+			end
+		else
+			actionst = dumbai.think(hand, play, player)
+		end
 		player, play, valid = kz.gameUpdate(state,actionst)
 		--determine klootzak
 		if (player == -1) then
