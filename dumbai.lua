@@ -19,6 +19,7 @@ function think(hand, lastplay, player)
 		for i,j in ipairs(playt) do table.insert(toplay, j) end
 		if playv == 14 then any = true end
 	end
+	--if any card can be played, choose the lowest valued high multiple
 	if any then
 		local tany
 		tany = findmultis(hand, 4, 0, 13)
@@ -56,20 +57,23 @@ end
 
 function findmultis(hand, multival, minimum, maximum)
 	maximum = maximum or 14
+	--count number of same valued cards
 	local ocount = {}
 	for i,j in ipairs(hand) do
 		v = j.num
 		if not ocount[v] then ocount[v] = 1
 		else ocount[v] = ocount[v] + 1 end
 	end
+	--find lowest pair of desired multival
 	local lowest = 15
 	local pairnum
 	for i,j in pairs(ocount) do
-		if j >= multival and i < lowest and i >= minimum then
+		if j >= multival and i < lowest and i >= minimum and i <= maximum then
 			lowest = i
 			pairnum = j
 		end
 	end
+	--generate table of cards to return matching criteria
 	local rettable = {}
 	if pairnum then
 		local fcount = 0
