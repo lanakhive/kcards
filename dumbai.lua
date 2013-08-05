@@ -54,18 +54,6 @@ function findpair(lastplay, max)
 	return count, val, aces
 end
 
-function findlowest(hand, minimum)
-	local lowest = 15
-	local lowindex = 0
-	for i,j in ipairs(hand) do 
-		if j.num < lowest and j.num >= minimum then
-			lowest = j.num
-			lowindex = i
-		end
-	end
-	if lowindex > 0 then return lowindex end
-end
-
 function findmultis(hand, multival, minimum, maximum)
 	maximum = maximum or 14
 	local ocount = {}
