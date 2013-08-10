@@ -3,14 +3,17 @@
 
 --generate hands for all players
 function genDeck(players)
-	players = players or 9
+	local players = players or 9
+	local tablelookup = {0, 12, 12, 8, 8, 8, 8, 6, 6, 4, 4, 4, 4, 4}
+	local handsize = tablelookup[players] or 6
 	local deck = genCards()
+	while #deck > handsize*players do table.remove(deck,#deck) end
 	shuffle(deck)
 	local hands = {}
 	local deckindex = 1
 	for i = 1, players do
 		local hand = {}
-		for j = 1, 6 do
+		for j = 1, handsize do
 			hand[#hand+1] = deck[deckindex]
 			deckindex = deckindex + 1
 		end
