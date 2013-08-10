@@ -103,7 +103,8 @@ function checkPlay(lastCards, currCards, max)
 	currNum, currCount, currHighCount = checkPairs(currCards, max)
 	-- mismatch
 	if not currNum then return false end
-	if not lastNum then error("Invalid history in rule check!") end
+	-- max changed since last play
+	if not lastNum then lastNum, lastCount, lastHighCount = checkPairs(lastCards, max + 1) end
 	-- pass
 	if currNum == 0 and currHighCount == 0 then return true end
 	--only ace
@@ -147,6 +148,18 @@ function hasInHand(hand, cards)
 	return true
 end
 
+function updateHighest(state, play)
+	for i,j in ipairs(play) do
+		if not state.cardsPlayed[j.num] then state.cardsPlayed[j.num] = 1
+		else state.cardsPlayed[j.num] = state.cardsPlayed[j.num] + 1 end
+	end
+	for i = 1, 14 do
+		if not state.cardsPlayed[i] or state.cardsPlayed[i] < 4 then
+			state.highcardnum = i
+		end
+	end
+end
+
 --generate a game state
 function genGameState(players)
 	players = players or 2
@@ -157,10 +170,12 @@ function genGameState(players)
 	state.hands = genDeck(players)
 	state.out = {} --boolean table of out players
 	state.lastPlay = {}
-	state.lastPlayerPlay = nil
+	state.lastPlayerPlay = nil --last player that played a card
 	state.president = nil
 	state.winner = nil
 	state.gameInProgress = true
+	state.highcardnum = 14
+	state.cardsPlayed = {}
 	return state
 end
 
@@ -198,7 +213,7 @@ function gameUpdate(state, play)
 
 	-- check if a play is not valid or doesnt beat last hand
 	if not hasInHand(getHand(state, state.currPlayer), play) or
-	not checkPlay(state.lastPlay, play) then
+	not checkPlay(state.lastPlay, play, state.highcardnum) then
 		return state.currPlayer, state.lastPlay, false
 	end
 
@@ -206,6 +221,7 @@ function gameUpdate(state, play)
 	if #play ~= 0 then
 		state.lastPlay = play
 		state.lastPlayerPlay = state.currPlayer
+		updateHighest(state, play);
 		removeCards(getHand(state,state.currPlayer), play)
 		--check for player out
 		if #getHand(state,state.currPlayer) == 0 then
