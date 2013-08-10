@@ -11,7 +11,7 @@ function play()
 	local pcount
 	repeat
 		pcount = tonumber(io.read())
-		if not pcount then print("Enter a number!") end
+		pcount = pcount or 8
 		if pcount > 9 or pcount < 2 then print("Wrong Number!") pcount = nil end
 	until pcount
 	--create game
