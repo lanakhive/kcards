@@ -13,7 +13,7 @@ function HandManager.create(x,y)
 	hm.y = y
 	hm.hoverindex = 0
 	hm.hover = false
-	hm.enabled = true
+	hm.enabled = false
 
 	setmetatable(hm,HandManager)
 	return hm

@@ -242,6 +242,7 @@ function gameUpdate(state, play)
 	-- last is klootzak
 	if state.remainingPlayers == 1 then
 		state.klootzak = state.currPlayer
+		state.gameInProgress = false
 		return -1 
 	end
 	-- everone passed, can play anything

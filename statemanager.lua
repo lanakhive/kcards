@@ -21,7 +21,9 @@ end
 
 function StateManager:trigger()
 	if kz.checkPlay(self.kstate.lastPlay,self.hm:getSelected(),self.kstate.highcardnum) then
+		local playernum = self.kstate.currPlayer
 		kz.gameUpdate(self.kstate, self.hm:getSelected())
+		players:setCardStatus(playernum,#kz.getHand(self.kstate,playernum))
 		self.hm:commit(pile)
 		self.hm:setEnabled(false)
 		self.state = 'other'
@@ -41,6 +43,7 @@ function StateManager:getPlayer()
 end
 
 function StateManager:update(dt)
+	if not self.kstate.gameInProgress then return end
 	if self.kstate.currPlayer == 1 then self.state = 'player'
 	else self.state = 'other' end
 
@@ -55,11 +58,13 @@ function StateManager:update(dt)
 	if self.state == 'other' then
 		local actionst = dumbai.think(
 		kz.getHand(self.kstate,self.kstate.currPlayer),
-		self.kstate.lastPlay,self.kstate.currplayer)
+		self.kstate.lastPlay,self.kstate.currPlayer)
 		for i,j in ipairs(actionst) do
 			pm:addCard(j.num,j.suit,400,-200,0,.1)
 		end
+		local playernum = self.kstate.currPlayer
 		kz.gameUpdate(self.kstate,actionst)
+		players:setCardStatus(playernum,#kz.getHand(self.kstate,playernum))
 		self.counter = 20
 	end
 end

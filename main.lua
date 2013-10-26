@@ -4,6 +4,7 @@ cs = require('cardspinner')
 hm = require('handmanager')
 pm = require('pilemanager')
 sm = require('statemanager')
+plm = require('playermanager')
 
 floater = require('titlefloat')
 
@@ -16,7 +17,7 @@ function love.load()
 	love.graphics.setCaption("Klootzak!");
 
 	cg.cardPrecache()
-	mainfont = love.graphics.newFont(42)
+	mainfont = love.graphics.newFont(18)
 
 	scx = love.graphics.getWidth()
 	scy = love.graphics.getHeight()
@@ -25,10 +26,12 @@ function love.load()
 	title = floater.create(400,650)
 
 	global.bg = love.graphics.newImage(global.resourcedir .. "/" .. "bg" .. ".png")
+	global.panel = love.graphics.newImage(global.resourcedir .. "/panel.png")
 
 	hand = hm.create(400,scy-50)
 	pile = pm.create(400,200)
-	stat = sm.create(hand,pile)
+	players = plm.create(5,8)
+	stat = sm.create(hand,pile,players)
 end
 
 function love.update(dt)
@@ -40,6 +43,8 @@ function love.update(dt)
 	hand:update(dt)
 	pile:update(dt)
 	cplayer = stat:getPlayer()
+	players:setPlayer(cplayer)
+	players:update(dt)
 
 end
 
@@ -53,10 +58,12 @@ end
 
 function love.draw()
 	love.graphics.draw(global.bg,0,0);
+	love.graphics.draw(global.panel,0,0,0,.6,.6);
 	spinner:draw()
-	title:draw()
+	--title:draw()
 	pile:draw()
 	hand:draw()
+	players:draw(0,0)
 	love.graphics.setColor(0,0,0,255)
 	love.graphics.setFont(mainfont)
 	love.graphics.print("Player: " .. cplayer,10,550,0)
