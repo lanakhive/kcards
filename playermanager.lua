@@ -78,6 +78,7 @@ function PlayerManager:draw(x,y)
 	local out = imageGet('out')
 	love.graphics.draw(arrowimage,x+arrow.x,y+arrow.y,0,0.25,0.25)
 	for i,j in ipairs(self.hands) do
+		love.graphics.setFont(mainfont)
 		love.graphics.print("Player " .. i, 20, i*50-40)
 		for k,l in ipairs(j) do
 			--love.graphics.draw(cardimage,x+l.x,y+l.y,0,0.03,0.03)

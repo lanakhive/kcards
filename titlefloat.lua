@@ -6,6 +6,7 @@ function floater.create(x,y)
 	f.titleimg = love.graphics.newImage(global.resourcedir .. "/ktitle.png")
 	f.px = x
 	f.py = y
+	f.y = 175
 	f.cnt = 0
 	f.rcnt = 0
 	f.zcnt = 0
@@ -26,6 +27,7 @@ end
 
 function floater:draw()
 	love.graphics.draw(self.titleimg,self.px,self.py,self.rot,self.zom,self.zom,325,100)
+	love.graphics.draw(imageGet('tcg'), self.px, self.y + 80, 0, 1, 1, 150, 0)
 end
 
 return floater
