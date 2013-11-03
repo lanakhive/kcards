@@ -10,7 +10,7 @@ function CardFall.create()
 		local card, suit = randomCard()
 		table.insert(cf.cards, 
 		{
-			num = math.random(13),
+			num = math.random(1,14),
 			suit = suit,
 			x=math.random(800),
 			y=math.random(600) - 600,
@@ -54,8 +54,8 @@ function CardFall:update(dt)
 			j.y = -100
 			j.x = math.random(800)
 			j.spy = math.random(100)+50
-			j.card, j.suit = randomCard()
-			back = math.random(1,20) == 1
+			j.num, j.suit = randomCard()
+			j.back = math.random(1,20) == 1
 		end
 	end
 end
