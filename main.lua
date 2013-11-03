@@ -8,13 +8,16 @@ sm = require('statemanager')
 plm = require('playermanager')
 ms = require('menusystem')
 mf = require('massfader')
-require('massfader')
 
 floater = require('titlefloat')
 
 
 global = {}
 global.resourcedir = "resources"
+global.w = 800
+global.h = 600
+global.ws = 1
+global.hs = 1
 cplayer = ""
 
 function love.load()
@@ -28,7 +31,7 @@ function love.load()
 	scy = love.graphics.getHeight()
 
 	spinner = cs.create(scx-80,scy-80,0.1)
-	title = floater.create(400,650)
+	title = floater.create(400,175)
 	falls = cf.create()
 	fade = mf.create()
 
@@ -65,7 +68,7 @@ end
 
 function love.mousepressed(x,y, button)
 	menu:mousepressed(x,y,button)
-	if not menu:isActive() then
+	if menu:mouseIsMenu() then
 		if button == 'l' then
 			hand:clickAction()
 			local d = pile:clickAction(x,y)
@@ -80,6 +83,9 @@ end
 
 function love.keypressed(key,unicode)
 	menu:keypressed(key,unicode)
+	if k == 'escape' then
+      love.event.quit()
+   end
 end
 
 function love.keyreleased(key)
@@ -88,12 +94,12 @@ end
 
 function love.draw()
 
-	love.graphics.draw(global.bg,0,0);
+	love.graphics.draw(global.bg,0,0,0,global.ws,global.hs);
 	if menu:isActive() then
 		falls:draw()
 		title:draw()
 		love.graphics.setColor(0,0,0,255)
-		love.graphics.draw(global.lh, 780,590, 0, .35, .35, 398, 94)
+		love.graphics.draw(global.lh, global.w-20, global.h-10, 0, .35, .35, 398, 94)
 		love.graphics.reset()
 	else
 		love.graphics.draw(global.panel,0,0,0,.6,.6);
@@ -103,14 +109,16 @@ function love.draw()
 		players:draw(0,0)
 		love.graphics.setColor(0,0,0,255)
 		love.graphics.setFont(mainfont)
-		love.graphics.print("Player: " .. cplayer,10,550,0)
+		love.graphics.print("Player: " .. cplayer,10,global.h-50,0)
 		love.graphics.reset()
 	end
-	fade:draw()
 	menu:draw()
+	fade:draw()
 	love.graphics.setColor(0,0,0,255)
 	love.graphics.setFont(defaultfont)
-	love.graphics.print("Kz game v0.3",10,580,0)
+	love.graphics.print("Kz game v0.3",10,global.h - 20,0)
+	love.graphics.setColor(0,0,255,255)
+	love.graphics.print(""..tostring(love.timer.getFPS( )), 10, 10)
 	love.graphics.reset()
 end
 

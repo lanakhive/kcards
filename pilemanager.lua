@@ -31,8 +31,8 @@ function PileManager:addCard(num,suit,x,y,r,s)
 		y = y,
 		r = r,
 		s = s,
-		tx = self.x + (math.random(200) - 100),
-		ty = self.y + (math.random(200) - 100),
+		tx = self.x * global.ws + (math.random(200) - 100),
+		ty = self.y * global.hs + (math.random(200) - 100),
 		tr = math.rad(math.random(360)) - math.rad(180),
 		ts = self.scl
 	})
@@ -40,8 +40,8 @@ function PileManager:addCard(num,suit,x,y,r,s)
 	if #self.pile > maxpile then
 		for i=1,#self.pile-maxpile,1 do
 			rem = self.pile[i]
-			rem.tx = self.x
-			rem.ty = self.y
+			rem.tx = self.x * global.ws
+			rem.ty = self.y * global.hs
 			rem.ts = 0.15
 			rem.rem = true
 		end
@@ -65,7 +65,7 @@ function PileManager:update(dt)
 end
 
 function PileManager:clickAction(x,y)
-	if math.abs(x - self.x) < 100 and math.abs(y - self.y) < 100 then
+	if math.abs(x - self.x * global.ws) < 100 and math.abs(y - self.y * global.hs) < 100 then
 		return true
 	end
 	return false

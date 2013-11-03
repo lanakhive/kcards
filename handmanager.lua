@@ -37,11 +37,11 @@ function HandManager:setFan()
 		xinterval = 40
 		rinterval = math.rad(15)
 	end
-	local xoffset = self.x - xinterval * #self.hand / 2
+	local xoffset = self.x * global.ws - xinterval * #self.hand / 2
 	local roffset = -rinterval * #self.hand/2
 	for i,j in ipairs(self.hand) do
 		j.tx = xoffset
-		j.ty = self.y
+		j.ty = self.y * global.hs
 		j.tr = roffset
 		if i == self.hoverindex then
 			xoffset = xoffset + 60

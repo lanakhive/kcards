@@ -25,7 +25,7 @@ function CardSpinner.create(x,y,scl)
 end
 
 function CardSpinner:draw()
-	love.graphics.draw(self.cardback,self.x,self.y,self.rot,self.scl,self.scl, 512, 512)
+	love.graphics.draw(cg.cardGet(self.cnum,self.csuit),self.x*global.ws,self.y*global.hs,self.rot,self.scl,self.scl, 512, 512)
 end
 
 function CardSpinner:update(dt)

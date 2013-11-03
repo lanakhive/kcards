@@ -120,6 +120,7 @@ function genCard(num,suit)
 end
 
 function cardPrecache()
+	cardcache = {}
 	for i = 14,2,-1 do
 		cardGet(i,"H")
 		cardGet(i,"D")
