@@ -34,7 +34,7 @@ function MenuSystem.create()
 	mm.dbgButton = loveframes.Create("button", mm.parentFrame)
 	mm.dbgButton:SetPos(5, 125)
 	mm.dbgButton:SetText("President")
-	mm.dbgButton.OnClick = function () if not menu.dm then menu.dm = MenuSystem.debug() end end 
+	mm.dbgButton.OnClick = function () fade:cardout(50,100) if not menu.dm then menu.dm = MenuSystem.debug() end end 
 	mm.parentFrame:SetState("mainmenu")
 	
 	menu.om = MenuSystem.createOptions()

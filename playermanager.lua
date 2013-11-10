@@ -3,25 +3,36 @@ cg = require('cardgen')
 PlayerManager = {}
 PlayerManager.__index = PlayerManager
 
-function PlayerManager.create(players, cards)
+function lerp(c,d,t) return c + (d - c) * t end
+
+function PlayerManager.create()
 	local pm = {}
-	pm.players = players
+	pm.players = 0
 	pm.hands = {}
 	pm.arrow = {x=0,y=0,tx=0,ty=0}
 	pm.outs = {}
-	for i=1,players do
-		table.insert(pm.hands, {})
-		table.insert(pm.outs, {enabled = false, x=-100, y=0})
-		for j=1,cards do
-			table.insert(pm.hands[i], {x = -150, y = i*50, rem=false})
-		end
-	end
 	setmetatable(pm,PlayerManager)
 	pm:setPositions()
 	return pm
 end
+
+function PlayerManager:reset(players,cards)
+	self.players = players
+	self.hands = {}
+	self.arrow = {x=0,y=0,tx=0,ty=0}
+	self.outs = {}
+	for i=1,players do
+		table.insert(self.hands, {})
+		table.insert(self.outs, {enabled = false, x=-100, y=0})
+		for j=1,cards do
+			table.insert(self.hands[i], {x = -150, y = i*50, rem=false})
+		end
+	end
+	self:setPositions()
+end
 		
 function PlayerManager:setCardStatus(player,cards)
+	if self.hands[player] == nil then return end
 	while cards < #self.hands[player] do
 		table.remove(self.hands[player],1)
 		if cards == 0 then self.outs[player].enabled = true end
@@ -74,8 +85,10 @@ end
 function PlayerManager:draw(x,y)
 	local cardimage = imageGet('bs')
 	local arrowimage = imageGet('rightarrow')
+	local panelimage = imageGet('panel')
 	local arrow = self.arrow
 	local out = imageGet('out')
+	love.graphics.draw(panelimage,0,-250+self.players*50,0,.6,.6)
 	love.graphics.draw(arrowimage,x+arrow.x,y+arrow.y,0,0.25,0.25)
 	for i,j in ipairs(self.hands) do
 		love.graphics.setFont(mainfont)

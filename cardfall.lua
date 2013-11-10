@@ -12,8 +12,8 @@ function CardFall.create()
 		{
 			num = math.random(1,14),
 			suit = suit,
-			x=math.random(800),
-			y=math.random(600) - 600,
+			x=math.random(global.w),
+			y=math.random(global.h) - global.h,
 			r=math.rad(math.random(360)),
 			spy = math.random(100)+50,
 			spr = math.rad(math.random(20)+20) * (math.random(0,1) * 2 - 1),
@@ -50,9 +50,9 @@ function CardFall:update(dt)
 		j.y = j.y + j.spy * dt
 		j.r = j.r + j.spr * dt
 		j.spy = j.spy + 20 * dt
-		if j.y > 750 then
+		if j.y > global.h + 150 then
 			j.y = -100
-			j.x = math.random(800)
+			j.x = math.random(global.w)
 			j.spy = math.random(100)+50
 			j.num, j.suit = randomCard()
 			j.back = math.random(1,20) == 1

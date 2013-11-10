@@ -102,8 +102,7 @@ function love.draw()
 		love.graphics.draw(global.lh, global.w-20, global.h-10, 0, .35, .35, 398, 94)
 		love.graphics.reset()
 	else
-		love.graphics.draw(global.panel,0,0,0,.6,.6);
-		--spinner:draw()
+		--love.graphics.draw(global.panel,0,0,0,.6,.6);
 		pile:draw()
 		hand:draw()
 		players:draw(0,0)

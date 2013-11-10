@@ -4,19 +4,29 @@ dumbai = require('dumbai')
 StateManager = {}
 StateManager.__index = StateManager
 
-function StateManager.create(hm, pm)
+function StateManager.create(hm, pm, plm)
 	sm = {}
 	sm.state = 'player'
-	sm.kstate = kz.genGameState(5)
+	--sm.kstate = kz.genGameState(5)
 	sm.hm = hm
 	sm.pm = pm
+	sm.plm = plm
 	sm.counter = 0
-	for i,j in ipairs(sm.kstate.hands[1]) do
-		sm.hm:addCard(j.num,j.suit)
-	end
-	
 	setmetatable(sm,StateManager)
+	sm:createGame(8)
 	return sm
+end
+
+function StateManager:createGame(players)
+	self.state = 'player'
+	self.kstate = kz.genGameState(players)
+	self.counter = 0
+	self.hm:clear()
+	self.pm:clear()
+	for i,j in ipairs(sm.kstate.hands[1]) do
+		self.hm:addCard(j.num,j.suit)
+	end
+	self.plm:reset(players, #self.kstate.hands[1])
 end
 
 function StateManager:trigger()
@@ -39,10 +49,13 @@ function StateManager:getState()
 end
 
 function StateManager:getPlayer()
+	if not self.kstate then return 0 end
+	if not self.kstate.gameInProgress then return 0 end
 	return self.kstate.currPlayer
 end
 
 function StateManager:update(dt)
+	if not self.kstate then return end
 	if not self.kstate.gameInProgress then return end
 	if self.kstate.currPlayer == 1 then self.state = 'player'
 	else self.state = 'other' end

@@ -23,6 +23,10 @@ function PileManager:draw()
 	end
 end
 
+function PileManager:clear()
+	self.pile = {}
+end
+
 function PileManager:addCard(num,suit,x,y,r,s)
 	table.insert(self.pile,{
 		num = num,

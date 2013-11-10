@@ -63,6 +63,10 @@ function HandManager:addCard(num,suit)
 	self:setFan()
 end
 
+function HandManager:clear()
+	self.hand = {}
+end
+
 function HandManager:clearSelection()
 	for i,j in ipairs(self.hand) do
 		j.selected = false
