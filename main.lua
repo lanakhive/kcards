@@ -8,6 +8,7 @@ sm = require('statemanager')
 plm = require('playermanager')
 ms = require('menusystem')
 mf = require('massfader')
+es = require('endscreen')
 
 floater = require('titlefloat')
 
@@ -43,6 +44,7 @@ function love.load()
 	pile = pm.create(400,200)
 	players = plm.create(5,8)
 	stat = sm.create(hand,pile,players)
+	score = es.create()
 	menu = ms.create()
 end
 
@@ -63,6 +65,7 @@ function love.update(dt)
 		players:update(dt)
 	end
 	fade:update(dt)
+	score:update(dt)
 
 end
 
@@ -111,6 +114,7 @@ function love.draw()
 		love.graphics.print("Player: " .. cplayer,10,global.h-50,0)
 		love.graphics.reset()
 	end
+	score:draw()
 	menu:draw()
 	fade:draw()
 	love.graphics.setColor(0,0,0,255)

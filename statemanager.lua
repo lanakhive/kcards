@@ -12,14 +12,16 @@ function StateManager.create(hm, pm, plm)
 	sm.pm = pm
 	sm.plm = plm
 	sm.counter = 0
+	sm.gameactive = false
 	setmetatable(sm,StateManager)
-	sm:createGame(8)
+	--sm:createGame(8)
 	return sm
 end
 
 function StateManager:createGame(players)
 	self.state = 'player'
 	self.kstate = kz.genGameState(players)
+	self.gameactive = true
 	self.counter = 0
 	self.hm:clear()
 	self.pm:clear()
@@ -56,7 +58,18 @@ end
 
 function StateManager:update(dt)
 	if not self.kstate then return end
-	if not self.kstate.gameInProgress then return end
+	if self.gameactive and not self.kstate.gameInProgress then 
+		self.counter = self.counter - dt*10
+		if self.counter > 0 then return end
+		score:setPlayers("Player " .. self.kstate.president, "Player " .. self.kstate.klootzak)
+		self.gameactive = false
+		local x,y = self.plm:findLoserCard()
+		fade:cardout(x, y, function() 
+			score:activate(true)
+			menu:setActive(true, "score")
+		end)	
+		return 
+	end
 	if self.kstate.currPlayer == 1 then self.state = 'player'
 	else self.state = 'other' end
 

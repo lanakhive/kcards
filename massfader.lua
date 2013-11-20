@@ -36,8 +36,9 @@ function MassFader:cardout(x,y,func)
 	self.cardx = x
 	self.cardy = y
 	self.cardr = 0
-	self.cards = 0.05 
+	self.cards = 0.03 
 	self.cardsv = 0 
+	self.func = func
 end
 
 function MassFader:draw()
@@ -91,7 +92,7 @@ function MassFader:update(dt)
 	end
 	if self.state == 5 then
 		self.cardx = lerp(self.cardx, global.w/2, dt*0.8)
-		self.cardy = lerp(self.cardy, global.h/2, dt*0.8)
+		self.cardy = lerp(self.cardy, global.h/2, dt*0.2)
 		self.cardr = lerp(self.cardr,720, dt)
 		self.cardsv = self.cardsv + dt * 0.05
 		self.cards = self.cards + self.cardsv

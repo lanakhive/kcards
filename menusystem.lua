@@ -3,6 +3,8 @@ require("lib.loveframes")
 MenuSystem = {}
 MenuSystem.__index = MenuSystem
 
+lastpcount = 6
+
 function MenuSystem.create()
 	local menu = {}
 	menu.active = true
@@ -20,7 +22,7 @@ function MenuSystem.create()
 	mm.startButton:SetPos(5,35)
 	mm.startButton:SetText("Start Game")
 	mm.startButton:SetWidth(140)
-	mm.startButton.OnClick = function () fade:fadeout(function() menu:setActive(false) end) end
+	mm.startButton.OnClick = function () loveframes.SetState("startmenu") end
 	mm.optionsButton = loveframes.Create("button", mm.parentFrame)
 	mm.optionsButton:SetPos(5,65)
 	mm.optionsButton:SetText("Options")
@@ -34,10 +36,12 @@ function MenuSystem.create()
 	mm.dbgButton = loveframes.Create("button", mm.parentFrame)
 	mm.dbgButton:SetPos(5, 125)
 	mm.dbgButton:SetText("President")
-	mm.dbgButton.OnClick = function () fade:cardout(50,100) if not menu.dm then menu.dm = MenuSystem.debug() end end 
+	mm.dbgButton.OnClick = function () fade:cardout(50,100,function() score:activate(true) loveframes.SetState("score") end) if not menu.dm then menu.dm = MenuSystem.debug() end end 
 	mm.parentFrame:SetState("mainmenu")
 	
 	menu.om = MenuSystem.createOptions()
+	menu.sm = MenuSystem.createStart()
+	menu.cm = MenuSystem.createScore()
 	loveframes.SetState("mainmenu")
 	setmetatable(menu,MenuSystem)
 	return menu
@@ -47,9 +51,9 @@ function MenuSystem:isActive()
 	return self.active
 end
 
-function MenuSystem:setActive(val)
+function MenuSystem:setActive(val,state)
 	self.active = val
-	loveframes.SetState("none")
+	loveframes.SetState(state or "none")
 end
 
 function MenuSystem.debug()
@@ -95,6 +99,42 @@ function MenuSystem.debug()
 	dm.parentFrame:SetVisible(true)
 	dm.parentFrame:SetState("mainmenu")
 	return dm
+end
+
+function MenuSystem.createStart()
+	local sm = {}
+	sm.parentFrame = loveframes.Create("frame")
+	sm.parentFrame:SetName("Start Game")
+	sm.parentFrame:SetScreenLocked(true)
+	sm.parentFrame:SetDraggable(false)
+	sm.parentFrame:ShowCloseButton(false)
+	sm.parentFrame:SetWidth(250)
+	sm.parentFrame:CenterX()
+	sm.parentFrame:SetY(350)
+	sm.okButton = loveframes.Create("button", sm.parentFrame)
+	sm.okButton:SetPos(5,95)
+	sm.okButton:SetText("Start")
+	sm.okButton:SetWidth(100)
+	sm.okButton.OnClick = function () 
+		local pcount = sm.pnumChoice:GetChoice()
+		lastpcount = pcount
+		fade:fadeout(function() menu:setActive(false) stat:createGame(pcount) end) 
+	end
+	sm.CancelButton = loveframes.Create("button", sm.parentFrame)
+	sm.CancelButton:SetPos(110,95)
+	sm.CancelButton:SetText("Cancel")
+	sm.CancelButton:SetWidth(100)
+	sm.CancelButton.OnClick = function () loveframes.SetState("mainmenu") end
+	sm.pnumText = loveframes.Create("text", sm.parentFrame)
+	sm.pnumText:SetText("Players")
+	sm.pnumText:SetPos(5,40)
+	sm.pnumChoice = loveframes.Create("multichoice", sm.parentFrame)
+	sm.pnumChoice:SetPos(80,35)
+	sm.pnumChoice:SetWidth(100)
+	for i=2,9 do sm.pnumChoice:AddChoice(i) end
+	sm.pnumChoice:SetChoice(6)
+	sm.parentFrame:SetState("startmenu")
+	return sm
 end
 
 function MenuSystem.createOptions()
@@ -162,6 +202,44 @@ function MenuSystem.createOptions()
 	om.parentFrame:SetState("options")
 	return om
 end
+
+function MenuSystem.createScore()
+	local cm = {}
+	cm.parentFrame = loveframes.Create("frame")
+	cm.parentFrame:SetName("What now?")
+	cm.parentFrame:SetWidth(150)
+	cm.parentFrame:SetHeight(100)
+	cm.parentFrame:SetScreenLocked(true)
+	cm.parentFrame:SetDraggable(false)
+	cm.parentFrame:ShowCloseButton(false)
+	cm.parentFrame:CenterX()
+	cm.parentFrame:SetY(450)
+	cm.startButton = loveframes.Create("button", cm.parentFrame)
+	cm.startButton:SetPos(5,35)
+	cm.startButton:SetText("Replay")
+	cm.startButton:SetWidth(140)
+	cm.startButton.OnClick = function () 
+		fade:fadeout(function()
+			menu:setActive(false)
+			score:activate(false)
+			stat:createGame(lastpcount)
+		end)
+	end
+	cm.optionsButton = loveframes.Create("button", cm.parentFrame)
+	cm.optionsButton:SetPos(5,65)
+	cm.optionsButton:SetText("Main Menu")
+	cm.optionsButton:SetWidth(140)
+	cm.optionsButton.OnClick = function ()
+		fade:fadeout(function ()
+			score:activate(false)
+			loveframes.SetState("mainmenu") 
+		end)
+	end
+	cm.parentFrame:SetState("score")
+	return cm
+end
+
+
 
 function MenuSystem:mouseIsMenu()
 	return loveframes.util.GetHover()

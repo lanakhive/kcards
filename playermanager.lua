@@ -64,6 +64,18 @@ function PlayerManager:setPlayer(cplayer)
 	a.ty = cplayer * 50 - 38
 end
 
+function PlayerManager:findLoserCard()
+	for i,j in ipairs(self.hands) do
+		for k,l in ipairs(j) do
+			local x,y = l.x, l.y
+			l.x = -100
+			l.y = -100
+			l.tx = -100
+			l.ty = -100
+			return x+16, y+16
+		end
+	end
+end
 
 function PlayerManager:update(dt)
 	if dt > 1 then dt = 0 end
@@ -88,7 +100,7 @@ function PlayerManager:draw(x,y)
 	local panelimage = imageGet('panel')
 	local arrow = self.arrow
 	local out = imageGet('out')
-	love.graphics.draw(panelimage,0,-250+self.players*50,0,.6,.6)
+	love.graphics.draw(panelimage,-50,-440+self.players*50,0,.5,.5)
 	love.graphics.draw(arrowimage,x+arrow.x,y+arrow.y,0,0.25,0.25)
 	for i,j in ipairs(self.hands) do
 		love.graphics.setFont(mainfont)

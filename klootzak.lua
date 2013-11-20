@@ -4,7 +4,7 @@
 --generate hands for all players
 function genDeck(players)
 	local players = players or 9
-	local tablelookup = {0, 12, 12, 8, 8, 8, 8, 6, 6, 4, 4, 4, 4, 4}
+	local tablelookup = {0, 1, 2, 6, 6, 6, 6, 6, 6, 4, 4, 4, 4, 4}
 	local handsize = tablelookup[players] or 6
 	local deck = genCards()
 	while #deck > handsize*players do table.remove(deck,#deck) end

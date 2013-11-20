@@ -100,6 +100,8 @@ function HandManager:commit(pile)
 end
 
 function HandManager:draw()
+	local panel = imageGet('handpanel')
+	love.graphics.draw(panel, global.w/2, global.h+20, 0, 1, 1, 256, 512)
 	for i,j in ipairs(self.hand) do
 		local cardface = cardGet(j.num, j.suit)
 		love.graphics.draw(cardface,j.x,j.y,j.r,self.scl,self.scl,512,512)
