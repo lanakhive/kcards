@@ -10,7 +10,7 @@ function CardFall.create()
 		local card, suit = randomCard()
 		table.insert(cf.cards, 
 		{
-			num = math.random(1,14),
+			num = math.random(2,14),
 			suit = suit,
 			x=math.random(global.w),
 			y=math.random(global.h) - global.h,
@@ -26,7 +26,7 @@ end
 
 function randomCard()
 	local suit
-	local card = math.random(1,13)
+	local card = math.random(2,13)
 	local stemp = math.random(1,4)
 	if stemp == 1 then suit = "H"
 	elseif stemp == 2 then suit = "D"
