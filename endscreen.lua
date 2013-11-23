@@ -22,6 +22,7 @@ function EndScreen.create()
 	screen.k.nx = 200
 	screen.k.ny = 350
 	screen.k.no = 0
+	screen.counter = 0
 	screen.active = false
 	screen.font = love.graphics.newFont(40)
 	setmetatable(screen, EndScreen)
@@ -39,6 +40,7 @@ function EndScreen:activate(yes)
 		self.p.no = 0
 		self.k.to = 0
 		self.k.no = 0
+		self.counter = 0
 	end
 	self.active = yes
 end
@@ -46,12 +48,20 @@ end
 function EndScreen:update(dt)
 	if not self.active then return end
 	if dt > 1 then return end
+	self.counter = self.counter + dt * 100
+
 	self.p.to = self.p.to + 300 * dt
 	if (self.p.to > 255) then self.p.to = 255 end
+
+	if self.counter < 50 then return end
 	self.p.no = self.p.no + 300 * dt
 	if (self.p.no > 255) then self.p.no = 255 end
+
+	if self.counter < 150 then return end
 	self.k.to = self.k.to + 300 * dt
 	if (self.k.to > 255) then self.k.to = 255 end
+
+	if self.counter < 200 then return end
 	self.k.no = self.k.no + 300 * dt
 	if (self.k.no > 255) then self.k.no = 255 end
 end
