@@ -1,5 +1,5 @@
 
-EndScreen = {}
+local EndScreen = {}
 EndScreen.__index = EndScreen
 
 function EndScreen.create()

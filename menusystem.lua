@@ -146,27 +146,36 @@ function MenuSystem.createOptions()
 	om.parentFrame = loveframes.Create("frame")
 	om.parentFrame:SetName("Options")
 	om.parentFrame:SetWidth(250)
+	om.parentFrame:SetHeight(160)
 	om.parentFrame:SetScreenLocked(true)
 	om.parentFrame:SetDraggable(false)
 	om.parentFrame:ShowCloseButton(false)
 	om.parentFrame:CenterX()
 	om.parentFrame:SetY(350)
+	om.nameText = loveframes.Create("text", om.parentFrame)
+	om.nameText:SetText("Name")
+	om.nameText:SetPos(5,35)
+	om.nameInput = loveframes.Create("textinput", om.parentFrame)
+	om.nameInput:SetPos(80,30)
+	om.nameInput:SetWidth(140)
+	om.nameInput:SetLimit(10)
+	om.nameInput:SetText(global.playerName[1])
 	om.resText = loveframes.Create("text", om.parentFrame)
 	om.resText:SetText("Resolution")
-	om.resText:SetPos(5,40)
+	om.resText:SetPos(5,65)
 	om.resChoice = loveframes.Create("multichoice", om.parentFrame)
-	om.resChoice:SetPos(80,35)
+	om.resChoice:SetPos(80,60)
 	om.resChoice:SetWidth(140)
 	for i,j in pairs(modes) do
 		om.resChoice:AddChoice("" .. j.width .. "x" .. j.height)
 	end
 	om.resChoice:SetChoice("" .. currentMode.width .. "x" .. currentMode.height)
 	om.fullCheck = loveframes.Create("checkbox", om.parentFrame)
-	om.fullCheck:SetPos(5,65)
+	om.fullCheck:SetPos(5,95)
 	om.fullCheck:SetText("Fullscreen")
 	om.fullCheck:SetChecked(currentMode.fullScreen)
 	om.okButton = loveframes.Create("button", om.parentFrame)
-	om.okButton:SetPos(5,95)
+	om.okButton:SetPos(5,125)
 	om.okButton:SetText("Apply")
 	om.okButton:SetWidth(100)
 	om.okButton.OnClick = 
@@ -192,10 +201,11 @@ function MenuSystem.createOptions()
 			love.graphics.toggleFullscreen()
 			cardPrecache()
 		end
+		global.playerName[1] = om.nameInput:GetText()
 		loveframes.SetState("mainmenu")
 	end
 	om.CancelButton = loveframes.Create("button", om.parentFrame)
-	om.CancelButton:SetPos(110,95)
+	om.CancelButton:SetPos(110,125)
 	om.CancelButton:SetText("Cancel")
 	om.CancelButton:SetWidth(100)
 	om.CancelButton.OnClick = function () loveframes.SetState("mainmenu") end
@@ -242,6 +252,7 @@ end
 
 
 function MenuSystem:mouseIsMenu()
+	if not self.active then return false end
 	return loveframes.util.GetHover()
 end
 

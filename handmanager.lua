@@ -1,12 +1,12 @@
 cg = require('cardgen')
 
-HandManager = {}
+local HandManager = {}
 HandManager.__index = HandManager
 
-function lerp(c,d,t) return c + (d - c) * t end
+local function lerp(c,d,t) return c + (d - c) * t end
 
 function HandManager.create(x,y)
-	hm = {}
+	local hm = {}
 	hm.hand = {}
 	hm.scl = 0.25
 	hm.x = x
@@ -31,35 +31,43 @@ function HandManager:update(dt)
 end
 
 function HandManager:setFan()
+	-- determine spacing between cards
 	local xinterval = 20
 	local rinterval = math.rad(5)
+	-- spacing is larger during mouse hover
 	if self.hover then
 		xinterval = 40
 		rinterval = math.rad(15)
 	end
+	-- determine initial offsets for first card
 	local xoffset = self.x * global.ws - xinterval * #self.hand / 2
 	local roffset = -rinterval * #self.hand/2
+	-- iterate cards and set fan position
 	for i,j in ipairs(self.hand) do
 		j.tx = xoffset
 		j.ty = self.y * global.hs
 		j.tr = roffset
+		-- insert a peek for current hovered card
 		if i == self.hoverindex then
 			xoffset = xoffset + 60
 			roffset = roffset + math.rad(10)
 		end
+		-- selected cards are popped up
 		if j.selected then
 			j.ty =j.ty - 50
 		end
+		-- hand is retracted when disabled
 		if not self.enabled then
 			j.ty = j.ty + 100
 		end
+		-- update offset for next card
 		xoffset = xoffset + xinterval
 		roffset = roffset + rinterval
 	end
 end
 
 function HandManager:addCard(num,suit)
-	table.insert(hm.hand,{num = num,suit = suit,x = self.x, y = self.y+300, r=0})
+	table.insert(self.hand,{num = num,suit = suit,x = self.x, y = self.y+300, r=0})
 	self:setFan()
 end
 
@@ -80,7 +88,7 @@ function HandManager:setEnabled(en)
 end
 
 function HandManager:getSelected()
-	h = {}
+	local h = {}
 	for i,j in ipairs(self.hand) do
 		if j.selected then
 			table.insert(h, {num = j.num, suit = j.suit})
@@ -91,7 +99,7 @@ end
 
 function HandManager:commit(pile)
 	for i=#self.hand,1,-1 do
-		j = self.hand[i]
+		local j = self.hand[i]
 		if j.selected then
 			pile:addCard(j.num,j.suit,j.x,j.y,j.r,self.scl)
 			table.remove(self.hand, i)
@@ -116,7 +124,7 @@ function HandManager:clickAction()
 end
 
 function HandManager:checkMouse(x,y)
-	local val = "0"
+	local val = 0
 	self.hover = false
 	self.hoverindex = 0
 	if not self.enabled then return 0 end

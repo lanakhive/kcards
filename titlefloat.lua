@@ -1,4 +1,4 @@
-floater = {}
+local floater = {}
 floater.__index = floater
 
 function floater.create(x,y)

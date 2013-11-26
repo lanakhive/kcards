@@ -1,13 +1,14 @@
 cg = require('cardgen')
 
-CardFall = {}
+local CardFall = {}
 CardFall.__index = CardFall
 
 function CardFall.create()
 	local cf = {}
 	cf.cards = {}
+	-- generate initial cards
 	for i=1, 20 do
-		local card, suit = randomCard()
+		local card, suit = CardFall.randomCard()
 		table.insert(cf.cards, 
 		{
 			num = math.random(2,14),
@@ -24,7 +25,8 @@ function CardFall.create()
 	return cf
 end
 
-function randomCard()
+-- get a random card
+function CardFall.randomCard()
 	local suit
 	local card = math.random(2,13)
 	local stemp = math.random(1,4)
@@ -50,11 +52,12 @@ function CardFall:update(dt)
 		j.y = j.y + j.spy * dt
 		j.r = j.r + j.spr * dt
 		j.spy = j.spy + 20 * dt
+		-- check if card has fallen below screen and rerandomize it
 		if j.y > global.h + 150 then
 			j.y = -100
 			j.x = math.random(global.w)
 			j.spy = math.random(100)+50
-			j.num, j.suit = randomCard()
+			j.num, j.suit = self.randomCard()
 			j.back = math.random(1,20) == 1
 		end
 	end

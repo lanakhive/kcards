@@ -1,13 +1,7 @@
 cg = require('cardgen')
 
-CardSpinner = {}
+local CardSpinner = {}
 CardSpinner.__index = CardSpinner
-
-local cardback
-local r = 0
-local counter = 0
-local snum = 1
-local ssuit = "H"
 
 function CardSpinner.create(x,y,scl)
 	local cs = {
@@ -31,6 +25,7 @@ end
 function CardSpinner:update(dt)
 	self.rot = self.rot + dt*1.2;
 	self.counter = self.counter + dt
+	-- switch card face at an interval
 	if self.counter > 0.4 then
 		self.counter = 0
 		self.cnum = self.cnum + 1

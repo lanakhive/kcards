@@ -1,5 +1,5 @@
 
-imagecache = {}
+local imagecache = {}
 function imageGet(key)
 	if not imagecache[key] then
 		imagecache[key] = love.graphics.newImage(global.resourcedir .. "/" .. key .. ".png")
@@ -7,7 +7,7 @@ function imageGet(key)
 	return imagecache[key]
 end
 
-cardcache = {}
+local cardcache = {}
 function cardGet(num,suit)
 	if not cardcache[num .. suit] then
 		cardcache[num .. suit] = genCard(num,suit)
@@ -22,12 +22,9 @@ function genCard(num,suit)
 	local ds = dim/divs
 	local flip = math.rad(180)
 	local c = love.graphics.newCanvas(dim,dim)
-	--back = love.graphics.newImage("kimage/f.png")
-	--inum = love.graphics.newImage("kimage/" .. num .. ".png")
-	--isuit = love.graphics.newImage("kimage/" .. suit .. ".png")
-	back = imageGet("f");
-	inum = imageGet(num);
-	isuit = imageGet(suit);
+	local back = imageGet("f");
+	local inum = imageGet(num);
+	local isuit = imageGet(suit);
 
 	if num == 1 then
 		isuit = imageGet("J")
@@ -120,7 +117,9 @@ function genCard(num,suit)
 end
 
 function cardPrecache()
+	-- reset cache
 	cardcache = {}
+	-- request each card to cache it
 	for i = 14,2,-1 do
 		cardGet(i,"H")
 		cardGet(i,"D")
