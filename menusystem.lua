@@ -22,7 +22,10 @@ function MenuSystem.create()
 	mm.startButton:SetPos(5,35)
 	mm.startButton:SetText("Start Game")
 	mm.startButton:SetWidth(140)
-	mm.startButton.OnClick = function () loveframes.SetState("startmenu") end
+	mm.startButton.OnClick = function ()
+		MenuSystem.pItemRefresh(menu.sm)
+		loveframes.SetState("startmenu")
+	end
 	mm.optionsButton = loveframes.Create("button", mm.parentFrame)
 	mm.optionsButton:SetPos(5,65)
 	mm.optionsButton:SetText("Options")
@@ -103,12 +106,13 @@ end
 
 function MenuSystem.createStart()
 	local sm = {}
+	sm.list = {}
 	sm.parentFrame = loveframes.Create("frame")
 	sm.parentFrame:SetName("Start Game")
 	sm.parentFrame:SetScreenLocked(true)
 	sm.parentFrame:SetDraggable(false)
 	sm.parentFrame:ShowCloseButton(false)
-	sm.parentFrame:SetWidth(250)
+	sm.parentFrame:SetWidth(350)
 	sm.parentFrame:CenterX()
 	sm.parentFrame:SetY(350)
 	sm.okButton = loveframes.Create("button", sm.parentFrame)
@@ -118,7 +122,11 @@ function MenuSystem.createStart()
 	sm.okButton.OnClick = function () 
 		local pcount = sm.pnumChoice:GetChoice()
 		lastpcount = pcount
-		fade:fadeout(function() menu:setActive(false) stat:createGame(pcount) end) 
+		local aitable = {}
+		for i=1, pcount do
+			 aitable[i] = sm.list[i].ai and sm.list[i].ai:GetChoice() or "Default"
+		 end
+		fade:fadeout(function() menu:setActive(false) stat:createGame(pcount, aitable) end) 
 	end
 	sm.CancelButton = loveframes.Create("button", sm.parentFrame)
 	sm.CancelButton:SetPos(110,95)
@@ -127,14 +135,53 @@ function MenuSystem.createStart()
 	sm.CancelButton.OnClick = function () loveframes.SetState("mainmenu") end
 	sm.pnumText = loveframes.Create("text", sm.parentFrame)
 	sm.pnumText:SetText("Players")
-	sm.pnumText:SetPos(5,40)
+	sm.pnumText:SetPos(5,35)
 	sm.pnumChoice = loveframes.Create("multichoice", sm.parentFrame)
-	sm.pnumChoice:SetPos(80,35)
-	sm.pnumChoice:SetWidth(100)
+	sm.pnumChoice:SetPos(60,30)
+	sm.pnumChoice:SetWidth(40)
 	for i=2,9 do sm.pnumChoice:AddChoice(i) end
 	sm.pnumChoice:SetChoice(6)
+	sm.pnumChoice.OnChoiceSelected = function()
+		MenuSystem.pItemRefresh(sm)
+	end
 	sm.parentFrame:SetState("startmenu")
 	return sm
+end
+
+function MenuSystem.pItemRefresh(parent)
+	local players = parent.pnumChoice:GetChoice()
+	local list = parent.list
+	
+	for i in ipairs(list) do for k,l in pairs(list[i]) do l:Remove() end end
+	for i=1, players do
+		list[i] = {}
+		local item = list[i]
+		item.pnum = loveframes.Create("text", parent.parentFrame)
+		item.pnum:SetText("" .. i)
+		item.pnum:SetPos(5, i*30 + 40)
+		item.pname = loveframes.Create("text", parent.parentFrame)
+		item.pname:SetText(global.playerName[i] or ("Player " .. i))
+		item.pname:SetPos(40, i*30 + 40)
+		if i > 1 then
+			item.ai = loveframes.Create("multichoice", parent.parentFrame)
+			item.ai:SetPos(180, i*30 + 35)
+			item.ai:SetWidth(160)
+			item.ai:AddChoice("Default")
+			for k,l in pairs(master:list()) do
+				item.ai:AddChoice(l)
+			end
+			item.ai:SetChoice("Default")
+			item.ai.OnChoiceSelected = function ()
+				local name = master:getName(item.ai:GetChoice(), i)
+				item.pname:SetText(name)
+				global.playerName[i] = name
+			end
+		end
+	end
+	parent.okButton:SetY(players*30 + 75)
+	parent.CancelButton:SetY(players*30 + 75)
+	parent.parentFrame:SetHeight(players*30 + 105)
+	parent.parentFrame:SetY(350 - (players/2)*30)
 end
 
 function MenuSystem.createOptions()

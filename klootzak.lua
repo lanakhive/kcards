@@ -211,6 +211,11 @@ function gameUpdate(state, play)
 	-- ensure game is in progress
 	if not state.gameInProgress then return nil end
 
+	-- ensure player doesnt pass when any card can be played
+	if #play == 0 and #state.lastPlay == 0 then
+		return state.currPlayer, state.lastPlay, false
+	end
+
 	-- check if a play is not valid or doesnt beat last hand
 	if not hasInHand(getHand(state, state.currPlayer), play) or
 	not checkPlay(state.lastPlay, play, state.highcardnum) then
@@ -257,6 +262,7 @@ end
 --create library export table
 local kz = {
 	checkPlay = checkPlay,
+	hasInHand = hasInHand,
 	getHand = getHand,
 	cardString = cardString,
 	genGameState = genGameState,

@@ -84,8 +84,8 @@ function MassFader:update(dt)
 		self.spin:update(dt)
 		self.spinop = self.spinop + 400 * dt
 		self.count = self.count + 10 * dt
-		if self.spinop > 255 then self.spinop = 255 fade.func() end
-		if self.count > 20 then self.count = 0 self.state = 3 end
+		if self.spinop > 255 then self.spinop = 255  end
+		if self.count > 20 then self.count = 0 fade.func() self.state = 3 end
 	end
 	-- fade out card spinner
 	if self.state == 3 then 

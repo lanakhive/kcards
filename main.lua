@@ -9,6 +9,7 @@ plm = require('playermanager')
 ms = require('menusystem')
 mf = require('massfader')
 es = require('endscreen')
+ai = require('aimaster')
 
 floater = require('titlefloat')
 
@@ -23,7 +24,10 @@ global.playerName = {"Player"}
 cplayer = ""
 
 function love.load()
+	print("--- Kz Game by Lanak Hive ---\n")
 	--love.graphics.setCaption("Klootzakken!");
+	master = ai.create()
+	master:dirload()
 
 	cg.cardPrecache()
 	mainfont = love.graphics.newFont(18)
@@ -46,7 +50,7 @@ function love.load()
 	hand = hm.create(400,global.h-50)
 	pile = pm.create(400,200)
 	players = plm.create(5,8)
-	stat = sm.create(hand,pile,players)
+	stat = sm.create(hand, pile, players, master)
 	score = es.create()
 	menu = ms.create()
 end

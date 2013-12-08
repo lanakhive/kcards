@@ -4,13 +4,14 @@ dumbai = require('dumbai')
 StateManager = {}
 StateManager.__index = StateManager
 
-function StateManager.create(hm, pm, plm)
+function StateManager.create(hm, pm, plm, aim)
 	local sm = {}
 	sm.state = 'player'
 	--sm.kstate = kz.genGameState(5)
 	sm.hm = hm
 	sm.pm = pm
 	sm.plm = plm
+	sm.aim = aim
 	sm.counter = 0
 	sm.gameactive = false
 	setmetatable(sm,StateManager)
@@ -18,9 +19,11 @@ function StateManager.create(hm, pm, plm)
 	return sm
 end
 
-function StateManager:createGame(players)
+function StateManager:createGame(players, aitable)
+	print("-- Creating a new game with " .. players .. " players")
 	self.state = 'player'
 	self.kstate = kz.genGameState(players)
+	self.airef = aitable or self.airef
 	self.gameactive = true
 	self.counter = 0
 	self.hm:clear()
@@ -32,6 +35,8 @@ function StateManager:createGame(players)
 end
 
 function StateManager:trigger()
+	if not self.gameactive then return end
+	if self.kstate.currPlayer ~= 1 then return end
 	if kz.checkPlay(self.kstate.lastPlay,self.hm:getSelected(),self.kstate.highcardnum) then
 		local playernum = self.kstate.currPlayer
 		kz.gameUpdate(self.kstate, self.hm:getSelected())
@@ -58,7 +63,7 @@ end
 
 function StateManager:update(dt)
 	-- check if no game session exists
-	if not self.kstate then return end
+	if not self.kstate or not self.gameactive then return end
 
 	-- check if game session has ended
 	if self.gameactive and not self.kstate.gameInProgress then 
@@ -92,14 +97,41 @@ function StateManager:update(dt)
 
 	-- cpu turn
 	if self.state == 'other' then
+		-- get some stats the ai will need
+		local cplayer = self.kstate.currPlayer
+		local chand = kz.getHand(self.kstate, self.kstate.currPlayer)
+		local pplayer = self.kstate.lastPlayerPlay
+		local phand = self.kstate.lastPlay
+		local ccount = nil
+
 		-- call the ai to think
-		local actionst = dumbai.think(
-		kz.getHand(self.kstate,self.kstate.currPlayer),
-		self.kstate.lastPlay,self.kstate.currPlayer)
+		print("-- Think player " .. cplayer .. " using ai " .. self.airef[cplayer])
+		local actionst = self.airef[cplayer]=='Default' and
+		dumbai.think(chand,phand,cplayer) or
+		self.aim:think(self.airef[cplayer], cplayer, chand, pplayer, phand, ccount)
+
+		-- check if play is valid (gameUpdate will also check)
+		if not kz.checkPlay(self.kstate.lastPlay,actionst,self.kstate.highcardnum) or not kz.hasInHand(chand, actionst) then
+			print("Ai play was not valid, will pass instead")
+			actionst = {}
+		end
+
+		-- check for player pass
+		if #actionst == 0 then
+			print("Player " .. cplayer .. " passes")
+
+			-- if ai passes when it can't, play its lowest card
+			if #self.kstate.lastPlay == 0 then
+				print("But ai cannot pass, so they must play lowest card")
+				table.insert(actionst, kz.getHand(self.kstate, self.kstate.currPlayer)[1])
+			end
+		end
+
 		-- add the played cards to the pile
 		for i,j in ipairs(actionst) do
 			self.pm:addCard(j.num,j.suit,400,-200,0,.1)
 		end
+
 		-- get the current player
 		local playernum = self.kstate.currPlayer
 		-- update the session state
