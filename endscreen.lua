@@ -24,7 +24,7 @@ function EndScreen.create()
 	screen.k.no = 0
 	screen.counter = 0
 	screen.active = false
-	screen.font = love.graphics.newFont(40)
+	screen.font = love.graphics.newFont(global.resourcedir .. "/main.ttf", 40)
 	setmetatable(screen, EndScreen)
 	return screen
 end

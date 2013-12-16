@@ -4,7 +4,7 @@ function love.conf(t)
 	t.url = nil
 	t.identity = nil
 	t.version = "0.8.0"
-	t.console = true
+	t.console = false
 	t.release = false
 	t.screen.width = 800
 	t.screen.height = 600

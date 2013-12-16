@@ -13,6 +13,7 @@ function MenuSystem.create()
 	mm.parentFrame = loveframes.Create("frame")
 	mm.parentFrame:SetName("Main Menu")
 	mm.parentFrame:SetWidth(150)
+	mm.parentFrame:SetHeight(130)
 	mm.parentFrame:SetScreenLocked(true)
 	mm.parentFrame:SetDraggable(false)
 	mm.parentFrame:ShowCloseButton(false)
@@ -24,28 +25,30 @@ function MenuSystem.create()
 	mm.startButton:SetWidth(140)
 	mm.startButton.OnClick = function ()
 		MenuSystem.pItemRefresh(menu.sm)
-		loveframes.SetState("startmenu")
+		MenuSystem.switchMode(menu, "startmenu")
 	end
 	mm.optionsButton = loveframes.Create("button", mm.parentFrame)
 	mm.optionsButton:SetPos(5,65)
 	mm.optionsButton:SetText("Options")
 	mm.optionsButton:SetWidth(140)
-	mm.optionsButton.OnClick = function () loveframes.SetState("options") end
+	mm.optionsButton.OnClick = function () MenuSystem.switchMode(menu, "options") end
 	mm.quitButton = loveframes.Create("button", mm.parentFrame)
 	mm.quitButton:SetPos(5,95)
 	mm.quitButton:SetText("Quit")
 	mm.quitButton:SetWidth(140)
 	mm.quitButton.OnClick = function () love.event.quit() end
 	mm.dbgButton = loveframes.Create("button", mm.parentFrame)
-	mm.dbgButton:SetPos(5, 125)
-	mm.dbgButton:SetText("President")
-	mm.dbgButton.OnClick = function () fade:cardout(50,100,function() score:activate(true) loveframes.SetState("score") end) if not menu.dm then menu.dm = MenuSystem.debug() end end 
+	mm.dbgButton:SetPos(115, 3)
+	mm.dbgButton:SetWidth(30)
+	mm.dbgButton:SetHeight(20)
+	mm.dbgButton:SetText("DB")
+	mm.dbgButton.OnClick = function () if not menu.dm then menu.dm = MenuSystem.debug(menu) end end 
 	mm.parentFrame:SetState("mainmenu")
-	
-	menu.om = MenuSystem.createOptions()
-	menu.sm = MenuSystem.createStart()
-	menu.cm = MenuSystem.createScore()
-	loveframes.SetState("mainmenu")
+	menu.mm = mm
+	menu.om = MenuSystem.createOptions(menu)
+	menu.sm = MenuSystem.createStart(menu)
+	menu.cm = MenuSystem.createScore(menu)
+	MenuSystem.switchMode(menu, "mainmenu")
 	setmetatable(menu,MenuSystem)
 	return menu
 end
@@ -56,16 +59,16 @@ end
 
 function MenuSystem:setActive(val,state)
 	self.active = val
-	loveframes.SetState(state or "none")
+	MenuSystem.switchMode(self, state or "none")
 end
 
-function MenuSystem.debug()
-	local textlist = "Cmd ready"
+function MenuSystem.debug(parent)
 	local dm = {}
 	dm.parentFrame = loveframes.Create("frame")
-	dm.parentFrame:SetName("Horan Console")
+	dm.parentFrame:SetName("Console")
 	dm.parentFrame:SetWidth(300)
 	dm.parentFrame:SetHeight(200)
+	dm.parentFrame.OnClose = function() parent.dm = nil end
 	dm.fpsText = loveframes.Create("text", dm.parentFrame)
 	dm.fpsText:SetPos(5,35)
 	dm.fpsText:SetText(tostring("fps: " .. love.timer.getFPS()))
@@ -75,7 +78,7 @@ function MenuSystem.debug()
 	dm.list:SetPadding(5)
 	dm.list:SetAutoScroll(true)
 	dm.text = loveframes.Create("text")
-	dm.text:SetText("Cmd ready")
+	dm.text:SetText(global.buf)
 	dm.list:AddItem(dm.text)
 	dm.input = loveframes.Create("textinput", dm.parentFrame)
 	dm.input:SetPos(5,170)
@@ -83,19 +86,19 @@ function MenuSystem.debug()
 	dm.input.OnEnter = 
 	function()
 		local cmd = dm.input:GetText()
-		if cmd == "clear" then textlist = "" dm.text:SetText(textlist) dm.input:Clear() return end
+		if cmd == "clear" then global.buf = "" dm.text:SetText(global.buf) dm.input:Clear() return end
 		local cfunc, cerror = loadstring(cmd)
-		textlist = textlist .. " \n >" .. dm.input:GetText()
-		if not cfunc then textlist = textlist .. " \n <Compile Fail: \n " .. cerror 
+		global.buf = global.buf .. " \n >" .. dm.input:GetText() .. " \n "
+		if not cfunc then global.buf = global.buf .. " \n <Compile Fail: \n " .. cerror 
 		else 
 			local s1, s2 = pcall(cfunc)
 			if not s1 then
-				textlist = textlist .. " \n <Execute Fail: \n " .. s2
+				global.buf = global.buf .. "<Execute Fail: \n " .. s2
 			else
-				textlist = textlist .. " \n <" .. tostring(s2)
+				global.buf = global.buf .. "<" .. tostring(s2)
 			end
 		end
-		dm.text:SetText(textlist)
+		dm.text:SetText(global.buf)
 		dm.input:Clear()
 	end
 
@@ -104,7 +107,7 @@ function MenuSystem.debug()
 	return dm
 end
 
-function MenuSystem.createStart()
+function MenuSystem.createStart(parent)
 	local sm = {}
 	sm.list = {}
 	sm.parentFrame = loveframes.Create("frame")
@@ -132,14 +135,15 @@ function MenuSystem.createStart()
 	sm.CancelButton:SetPos(110,95)
 	sm.CancelButton:SetText("Cancel")
 	sm.CancelButton:SetWidth(100)
-	sm.CancelButton.OnClick = function () loveframes.SetState("mainmenu") end
+	sm.CancelButton.OnClick = function () MenuSystem.switchMode(parent, "mainmenu") end
 	sm.pnumText = loveframes.Create("text", sm.parentFrame)
 	sm.pnumText:SetText("Players")
+	sm.pnumText:SetFont(smallfont)
 	sm.pnumText:SetPos(5,35)
 	sm.pnumChoice = loveframes.Create("multichoice", sm.parentFrame)
 	sm.pnumChoice:SetPos(60,30)
 	sm.pnumChoice:SetWidth(40)
-	for i=2,9 do sm.pnumChoice:AddChoice(i) end
+	for i=4,9 do sm.pnumChoice:AddChoice(i) end
 	sm.pnumChoice:SetChoice(6)
 	sm.pnumChoice.OnChoiceSelected = function()
 		MenuSystem.pItemRefresh(sm)
@@ -158,9 +162,11 @@ function MenuSystem.pItemRefresh(parent)
 		local item = list[i]
 		item.pnum = loveframes.Create("text", parent.parentFrame)
 		item.pnum:SetText("" .. i)
+		item.pnum:SetFont(smallfont)
 		item.pnum:SetPos(5, i*30 + 40)
 		item.pname = loveframes.Create("text", parent.parentFrame)
 		item.pname:SetText(global.playerName[i] or ("Player " .. i))
+		item.pname:SetFont(smallfont)
 		item.pname:SetPos(40, i*30 + 40)
 		if i > 1 then
 			item.ai = loveframes.Create("multichoice", parent.parentFrame)
@@ -184,7 +190,7 @@ function MenuSystem.pItemRefresh(parent)
 	parent.parentFrame:SetY(350 - (players/2)*30)
 end
 
-function MenuSystem.createOptions()
+function MenuSystem.createOptions(parent)
 	local modes = love.graphics.getModes()
 	local currentMode = {}
 	currentMode.width, currentMode.height, currentMode.fullScreen = love.graphics.getMode()
@@ -201,14 +207,17 @@ function MenuSystem.createOptions()
 	om.parentFrame:SetY(350)
 	om.nameText = loveframes.Create("text", om.parentFrame)
 	om.nameText:SetText("Name")
+	om.nameText:SetFont(smallfont)
 	om.nameText:SetPos(5,35)
 	om.nameInput = loveframes.Create("textinput", om.parentFrame)
 	om.nameInput:SetPos(80,30)
 	om.nameInput:SetWidth(140)
 	om.nameInput:SetLimit(10)
 	om.nameInput:SetText(global.playerName[1])
+	om.nameInput:SetFont(smallfont)
 	om.resText = loveframes.Create("text", om.parentFrame)
 	om.resText:SetText("Resolution")
+	om.resText:SetFont(smallfont)
 	om.resText:SetPos(5,65)
 	om.resChoice = loveframes.Create("multichoice", om.parentFrame)
 	om.resChoice:SetPos(80,60)
@@ -220,6 +229,7 @@ function MenuSystem.createOptions()
 	om.fullCheck = loveframes.Create("checkbox", om.parentFrame)
 	om.fullCheck:SetPos(5,95)
 	om.fullCheck:SetText("Fullscreen")
+	om.fullCheck:SetFont(smallfont)
 	om.fullCheck:SetChecked(currentMode.fullScreen)
 	om.okButton = loveframes.Create("button", om.parentFrame)
 	om.okButton:SetPos(5,125)
@@ -241,6 +251,14 @@ function MenuSystem.createOptions()
 					global.hs = j.height / 600
 					currentMode.fullScreen = fsChoice
 					cardPrecache()
+					parent.mm.parentFrame:CenterX()
+					parent.mm.parentFrame:SetY(350*global.ws)
+					parent.om.parentFrame:CenterX()
+					parent.om.parentFrame:SetY(350*global.ws)
+					parent.sm.parentFrame:CenterX()
+					parent.sm.parentFrame:SetY(350*global.ws)
+					parent.cm.parentFrame:CenterX()
+					parent.cm.parentFrame:SetY(450*global.ws)
 				end
 			end
 		end
@@ -249,18 +267,18 @@ function MenuSystem.createOptions()
 			cardPrecache()
 		end
 		global.playerName[1] = om.nameInput:GetText()
-		loveframes.SetState("mainmenu")
+		MenuSystem.switchMode(parent, "mainmenu")
 	end
 	om.CancelButton = loveframes.Create("button", om.parentFrame)
 	om.CancelButton:SetPos(110,125)
 	om.CancelButton:SetText("Cancel")
 	om.CancelButton:SetWidth(100)
-	om.CancelButton.OnClick = function () loveframes.SetState("mainmenu") end
+	om.CancelButton.OnClick = function () MenuSystem.switchMode(parent, "mainmenu") end
 	om.parentFrame:SetState("options")
 	return om
 end
 
-function MenuSystem.createScore()
+function MenuSystem.createScore(parent)
 	local cm = {}
 	cm.parentFrame = loveframes.Create("frame")
 	cm.parentFrame:SetName("What now?")
@@ -289,14 +307,19 @@ function MenuSystem.createScore()
 	cm.optionsButton.OnClick = function ()
 		fade:fadeout(function ()
 			score:activate(false)
-			loveframes.SetState("mainmenu") 
+			MenuSystem.switchMode(parent, "mainmenu")
 		end)
 	end
 	cm.parentFrame:SetState("score")
 	return cm
 end
 
-
+function MenuSystem:switchMode(mode)
+	loveframes.SetState(mode)
+	if self.dm then
+		self.dm.parentFrame:SetState(mode)
+	end
+end
 
 function MenuSystem:mouseIsMenu()
 	if not self.active then return false end
@@ -308,6 +331,10 @@ function MenuSystem:draw()
 end
 
 function MenuSystem:update(dt)
+	if self.dm then 
+		self.dm.fpsText:SetText(tostring("fps: " .. love.timer.getFPS()))
+		self.dm.text:SetText(global.buf)
+	end
 	loveframes.update(dt)
 end
 

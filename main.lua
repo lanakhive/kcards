@@ -20,18 +20,24 @@ global.w = 800
 global.h = 600
 global.ws = 1
 global.hs = 1
-global.playerName = {"Player"}
+global.playerName = {"Player 1"}
+global.buf = ""
 cplayer = ""
+
+printo = print
+function print(s) global.buf = global.buf .. s .. " \n " printo(s) end
 
 function love.load()
 	print("--- Kz Game by Lanak Hive ---\n")
-	--love.graphics.setCaption("Klootzakken!");
+
 	master = ai.create()
 	master:dirload()
 
 	cg.cardPrecache()
-	mainfont = love.graphics.newFont(18)
-	defaultfont = love.graphics.newFont(14)
+	smallfont = love.graphics.newFont(global.resourcedir .. "/main.ttf", 15)
+	mainfont = love.graphics.newFont(global.resourcedir .. "/main.ttf", 18)
+	mainfontlarge = love.graphics.newFont(global.resourcedir .. "/main.ttf", 32)
+	defaultfont = love.graphics.newFont(10)
 
 	global.w = love.graphics.getWidth()
 	global.h = love.graphics.getHeight()
@@ -57,7 +63,6 @@ end
 
 function love.update(dt)
 	if menu:isActive() then
-		menu:update(dt)
 		title:update(dt)
 		falls:update(dt)
 	else
@@ -65,12 +70,13 @@ function love.update(dt)
 		stat:update(dt)
 
 		hand:update(dt)
-		vv = hand:checkMouse(love.mouse.getX(),love.mouse.getY())
+		hand:checkMouse(love.mouse.getX(),love.mouse.getY())
 		pile:update(dt)
 		cplayer = stat:getPlayer()
 		players:setPlayer(cplayer)
 		players:update(dt)
 	end
+	menu:update(dt)
 	fade:update(dt)
 	score:update(dt)
 
@@ -116,8 +122,8 @@ function love.draw()
 		hand:draw()
 		players:draw(0,0)
 		love.graphics.setColor(0,0,0,255)
-		love.graphics.setFont(mainfont)
-		love.graphics.print("Player: " .. cplayer,10,global.h-50,0)
+		love.graphics.setFont(mainfontlarge)
+		love.graphics.print("Player: " .. cplayer,25,global.h-60,0)
 		love.graphics.reset()
 	end
 	score:draw()
@@ -125,11 +131,7 @@ function love.draw()
 	fade:draw()
 	love.graphics.setColor(0,0,0,255)
 	love.graphics.setFont(defaultfont)
-	love.graphics.print("Kz game v0.3",10,global.h - 20,0)
-	love.graphics.setColor(0,0,255,255)
-	love.graphics.print(""..tostring(love.timer.getFPS( )), global.w-50, 10)
-	love.graphics.print(vv or 'AA', global.w-50, 40)
-	love.graphics.print(tostring(menu:mouseIsMenu()), global.w-50, 60)
+	love.graphics.print("Kz game v0.3",10,global.h - 13,0)
 	love.graphics.reset()
 end
 

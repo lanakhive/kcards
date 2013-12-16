@@ -11,8 +11,8 @@ skin.name = "Blue"
 skin.author = "Nikolai Resokav"
 skin.version = "1.0"
 
-local smallfont = love.graphics.newFont(10)
-local imagebuttonfont = love.graphics.newFont(15)
+local smallfont = love.graphics.newFont("resources/main.ttf",15)
+local imagebuttonfont = love.graphics.newFont("resources/main.ttf",15)
 local bordercolor = {143, 143, 143, 255}
 
 -- controls 

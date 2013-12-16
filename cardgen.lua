@@ -117,6 +117,7 @@ function genCard(num,suit)
 end
 
 function cardPrecache()
+	print("-- Precaching cards...")
 	-- reset cache
 	cardcache = {}
 	-- request each card to cache it
