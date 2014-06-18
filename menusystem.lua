@@ -1,4 +1,4 @@
-require("lib.loveframes")
+require("lib.LoveFrames")
 
 MenuSystem = {}
 MenuSystem.__index = MenuSystem
