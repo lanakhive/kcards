@@ -1,6 +1,6 @@
 --[[------------------------------------------------
 	-- Love Frames - A GUI library for LOVE --
-	-- Copyright (c) 2013 Kenny Shields --
+	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
 local path = ...
@@ -10,7 +10,7 @@ loveframes = {}
 
 -- library info
 loveframes.author = "Kenny Shields"
-loveframes.version = "0.9.6.3"
+loveframes.version = "0.9.8.1"
 loveframes.stage = "Alpha"
 
 -- library configurations
@@ -25,13 +25,19 @@ loveframes.config["DEBUG"] = false
 loveframes.state = "none"
 loveframes.drawcount = 0
 loveframes.collisioncount = 0
+loveframes.objectcount = 0
 loveframes.hoverobject = false
 loveframes.modalobject = false
 loveframes.inputobject = false
+loveframes.downobject = false
+loveframes.resizeobject = false
 loveframes.hover = false
+loveframes.input_cursor_set = false
+loveframes.prevcursor = nil
 loveframes.basicfont = love.graphics.newFont(12)
 loveframes.basicfontsmall = love.graphics.newFont(10)
 loveframes.objects = {}
+loveframes.collisions = {}
 
 --[[---------------------------------------------------------
 	- func: load()
@@ -39,24 +45,18 @@ loveframes.objects = {}
 --]]---------------------------------------------------------
 function loveframes.load()
 	
-	local loveversion = love._version
-	
-	if loveversion ~= "0.8.0" and loveversion ~= "0.9.0" then
-		error("Love Frames is not compatible with your version of LOVE.")
-	end
-	
 	-- install directory of the library
 	local dir = loveframes.config["DIRECTORY"] or path
 	
 	-- require the internal base libraries
 	loveframes.class = require(dir .. ".third-party.middleclass")
-	require(dir .. ".util")
-	require(dir .. ".skins")
-	require(dir .. ".templates")
-	require(dir .. ".debug")
+	require(dir .. ".libraries.util")
+	require(dir .. ".libraries.skins")
+	require(dir .. ".libraries.templates")
+	require(dir .. ".libraries.debug")
 	
 	-- replace all "." with "/" in the directory setting
-	dir = dir:gsub("%.", "/")
+	dir = dir:gsub("\\", "/"):gsub("(%a)%.(%a)", "%1/%2")
 	loveframes.config["DIRECTORY"] = dir
 	
 	-- create a list of gui objects, skins and templates
@@ -89,6 +89,9 @@ function loveframes.load()
 	local base = loveframes.objects["base"]
 	loveframes.base = base:new()
 	
+	-- enable key repeat
+	love.keyboard.setKeyRepeat(true)
+	
 end
 
 --[[---------------------------------------------------------
@@ -98,9 +101,106 @@ end
 function loveframes.update(dt)
 
 	local base = loveframes.base
+	local input_cursor_set = loveframes.input_cursor_set
 	
 	loveframes.collisioncount = 0
+	loveframes.objectcount = 0
 	loveframes.hover = false
+	loveframes.hoverobject = false
+	
+	local downobject = loveframes.downobject
+	if #loveframes.collisions > 0 then
+		local top = loveframes.collisions[#loveframes.collisions]
+		if not downobject then
+			loveframes.hoverobject = top
+		else
+			if downobject == top then
+				loveframes.hoverobject = top
+			end
+		end
+	end
+	
+	local hoverobject = loveframes.hoverobject
+	local arrow = love.mouse.getSystemCursor("arrow")
+	local curcursor = love.mouse.getCursor()
+	if hoverobject then
+		local ibeam = love.mouse.getSystemCursor("ibeam")
+		local mx, my = love.mouse.getPosition()
+		if hoverobject.type == "textinput" and not loveframes.resizeobject then
+			if curcursor ~= ibeam then
+				love.mouse.setCursor(ibeam)
+			end
+		elseif hoverobject.type == "frame" then
+			if not hoverobject.dragging and hoverobject.canresize then
+				if loveframes.util.BoundingBox(hoverobject.x, mx, hoverobject.y, my, 5, 1, 5, 1) then
+					local sizenwse = love.mouse.getSystemCursor("sizenwse")
+					if curcursor ~= sizenwse then
+						love.mouse.setCursor(sizenwse)
+					end
+				elseif loveframes.util.BoundingBox(hoverobject.x + hoverobject.width - 5, mx, hoverobject.y + hoverobject.height - 5, my, 5, 1, 5, 1) then
+					local sizenwse = love.mouse.getSystemCursor("sizenwse")
+					if curcursor ~= sizenwse then
+						love.mouse.setCursor(sizenwse)
+					end
+				elseif loveframes.util.BoundingBox(hoverobject.x + hoverobject.width - 5, mx, hoverobject.y, my, 5, 1, 5, 1) then
+					local sizenesw = love.mouse.getSystemCursor("sizenesw")
+					if curcursor ~= sizenesw then
+						love.mouse.setCursor(sizenesw)
+					end
+				elseif loveframes.util.BoundingBox(hoverobject.x, mx, hoverobject.y + hoverobject.height - 5, my, 5, 1, 5, 1) then
+					local sizenesw = love.mouse.getSystemCursor("sizenesw")
+					if curcursor ~= sizenesw then
+						love.mouse.setCursor(sizenesw)
+					end
+				elseif loveframes.util.BoundingBox(hoverobject.x + 5, mx, hoverobject.y, my, hoverobject.width - 10, 1, 2, 1) then
+					local sizens = love.mouse.getSystemCursor("sizens")
+					if curcursor ~= sizens then
+						love.mouse.setCursor(sizens)
+					end
+				elseif loveframes.util.BoundingBox(hoverobject.x + 5, mx, hoverobject.y + hoverobject.height - 2, my, hoverobject.width - 10, 1, 2, 1) then
+					local sizens = love.mouse.getSystemCursor("sizens")
+					if curcursor ~= sizens then
+						love.mouse.setCursor(sizens)
+					end
+				elseif loveframes.util.BoundingBox(hoverobject.x, mx, hoverobject.y + 5, my, 2, 1, hoverobject.height - 10, 1) then
+					local sizewe = love.mouse.getSystemCursor("sizewe")
+					if curcursor ~= sizewe then
+						love.mouse.setCursor(sizewe)
+					end
+				elseif loveframes.util.BoundingBox(hoverobject.x + hoverobject.width - 2, mx, hoverobject.y + 5, my, 2, 1, hoverobject.height - 10, 1) then
+					local sizewe = love.mouse.getSystemCursor("sizewe")
+					if curcursor ~= sizewe then
+						love.mouse.setCursor(sizewe)
+					end
+				else
+					if not loveframes.resizeobject then
+						local arrow = love.mouse.getSystemCursor("arrow")
+						if curcursor ~= arrow then
+							love.mouse.setCursor(arrow)
+						end
+					end
+				end
+			end
+		elseif hoverobject.type == "text" and hoverobject.linkcol and not loveframes.resizeobject then
+			local hand = love.mouse.getSystemCursor("hand")
+			if curcursor ~= hand then
+				love.mouse.setCursor(hand)
+			end
+		end
+		if curcursor ~= arrow then
+			if hoverobject.type ~= "textinput" and hoverobject.type ~= "frame" and not hoverobject.linkcol and not loveframes.resizeobject then
+				love.mouse.setCursor(arrow)
+			elseif hoverobject.type ~= "textinput" and curcursor == ibeam then
+				love.mouse.setCursor(arrow)
+			end
+		end
+	else
+		if curcursor ~= arrow and not loveframes.resizeobject then
+			love.mouse.setCursor(arrow)
+		end
+	end
+	
+	loveframes.collisions = {}
 	base:update(dt)
 
 end
@@ -137,6 +237,24 @@ function loveframes.mousepressed(x, y, button)
 	local base = loveframes.base
 	base:mousepressed(x, y, button)
 	
+	-- close open menus
+	local bchildren = base.children
+	local hoverobject = loveframes.hoverobject
+	for k, v in ipairs(bchildren) do
+		local otype = v.type
+		local visible = v.visible
+		if hoverobject then
+			local htype = hoverobject.type
+			if otype == "menu" and visible and htype ~= "menu" and htype ~= "menuoption" then
+				v:SetVisible(false)
+			end
+		else
+			if otype == "menu" and visible then
+				v:SetVisible(false)
+			end
+		end
+	end
+	
 end
 
 --[[---------------------------------------------------------
@@ -150,20 +268,20 @@ function loveframes.mousereleased(x, y, button)
 	
 	-- reset the hover object
 	if button == "l" then
-		loveframes.hoverobject = false
+		loveframes.downobject = false
 		loveframes.selectedobject = false
 	end
 	
 end
 
 --[[---------------------------------------------------------
-	- func: keypressed(key)
+	- func: keypressed(key, isrepeat)
 	- desc: called when the player presses a key
 --]]---------------------------------------------------------
-function loveframes.keypressed(key, unicode)
+function loveframes.keypressed(key, isrepeat)
 
 	local base = loveframes.base
-	base:keypressed(key, unicode)
+	base:keypressed(key, isrepeat)
 	
 end
 
@@ -201,6 +319,7 @@ function loveframes.Create(data, parent)
 	
 		local objects = loveframes.objects
 		local object = objects[data]
+		local objectcount = loveframes.objectcount
 		
 		if not object then
 			loveframes.util.Error("Error creating object: Invalid object '" ..data.. "'.")
@@ -231,6 +350,8 @@ function loveframes.Create(data, parent)
 		if parent then
 			newobject:SetParent(parent)
 		end
+		
+		loveframes.objectcount = objectcount + 1
 		
 		-- return the object for further manipulation
 		return newobject

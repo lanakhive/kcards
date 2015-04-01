@@ -129,7 +129,7 @@ function StateManager:update(dt)
 
 		-- add the played cards to the pile
 		for i,j in ipairs(actionst) do
-			self.pm:addCard(j.num,j.suit,400,-200,0,.1)
+			self.pm:addCard(j.num,j.suit,global.w/2,-200,0,.1)
 		end
 
 		-- get the current player

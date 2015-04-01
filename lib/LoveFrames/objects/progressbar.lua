@@ -1,9 +1,9 @@
 --[[------------------------------------------------
 	-- Love Frames - A GUI library for LOVE --
-	-- Copyright (c) 2013 Kenny Shields --
+	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
--- progressbar class
+-- progressbar object
 local newobject = loveframes.NewObject("progressbar", "loveframes_object_progressbar", true)
 
 --[[---------------------------------------------------------
@@ -13,6 +13,7 @@ local newobject = loveframes.NewObject("progressbar", "loveframes_object_progres
 function newobject:initialize()
 
 	self.type = "progressbar"
+	self.text = ""
 	self.width = 100
 	self.height = 25
 	self.min = 0
@@ -170,6 +171,7 @@ end
 function newobject:SetMax(max)
 
 	self.max = max
+	return self
 	
 end
 
@@ -190,6 +192,7 @@ end
 function newobject:SetMin(min)
 
 	self.min = min
+	return self
 	
 end
 
@@ -211,6 +214,8 @@ function newobject:SetMinMax(min, max)
 
 	self.min = min
 	self.max = max
+	
+	return self
 	
 end
 
@@ -241,6 +246,8 @@ function newobject:SetValue(value)
 		self.value = value
 	end
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -264,6 +271,8 @@ function newobject:SetLerp(bool)
 	self.lerpto = self:GetValue()
 	self.lerpvalue = self:GetValue()
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -284,6 +293,7 @@ end
 function newobject:SetLerpRate(rate)
 
 	self.lerprate = rate
+	return self
 	
 end
 
@@ -315,5 +325,26 @@ end
 function newobject:GetBarWidth()
 	
 	return self.barwidth
+	
+end
+
+--[[---------------------------------------------------------
+	- func: SetText(text)
+	- desc: sets the object's text
+--]]---------------------------------------------------------
+function newobject:SetText(text)
+
+	self.text = text
+	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetText()
+	- desc: gets the object's text
+--]]---------------------------------------------------------
+function newobject:GetText()
+
+	return self.text
 	
 end

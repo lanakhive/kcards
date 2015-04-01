@@ -1,9 +1,9 @@
 --[[------------------------------------------------
 	-- Love Frames - A GUI library for LOVE --
-	-- Copyright (c) 2013 Kenny Shields --
+	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
--- list class
+-- list object
 local newobject = loveframes.NewObject("list", "loveframes_object_list", true)
 
 --[[---------------------------------------------------------
@@ -130,7 +130,6 @@ function newobject:draw()
 	local width = self.width
 	local height = self.height
 	local stencilfunc = function() love.graphics.rectangle("fill", x, y, width, height) end
-	local loveversion = love._version
 	local internals = self.internals
 	local children = self.children
 	local skins = loveframes.skins.available
@@ -145,19 +144,14 @@ function newobject:draw()
 	
 	-- set the object's draw order
 	self:SetDrawOrder()
-		
+	
 	if draw then
 		draw(self)
 	else
 		drawfunc(self)
 	end
 	
-	if loveversion == "0.8.0" then
-		local stencil = love.graphics.newStencil(stencilfunc)
-		love.graphics.setStencil(stencil)
-	else
-		love.graphics.setStencil(stencilfunc)
-	end
+	love.graphics.setStencil(stencilfunc)
 		
 	for k, v in ipairs(children) do
 		local col = loveframes.util.BoundingBox(x, v.x, y, v.y, width, v.width, height, v.height)
@@ -249,7 +243,8 @@ end
 --]]---------------------------------------------------------
 function newobject:AddItem(object)
 	
-	if object.type == "frame" then
+	local objtype = object.type
+	if objtype == "frame" then
 		return
 	end
 
@@ -267,6 +262,8 @@ function newobject:AddItem(object)
 	-- resize the list and redo its layout
 	self:CalculateSize()
 	self:RedoLayout()
+	
+	return self
 	
 end
 
@@ -290,6 +287,8 @@ function newobject:RemoveItem(data)
 	
 	self:CalculateSize()
 	self:RedoLayout()
+	
+	return self
 	
 end
 
@@ -384,6 +383,8 @@ function newobject:CalculateSize()
 			end
 		end
 	end
+	
+	return self
 	
 end
 
@@ -494,6 +495,8 @@ function newobject:RedoLayout()
 		end
 	end
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -516,6 +519,8 @@ function newobject:SetDisplayType(type)
 		self:CalculateSize()
 		self:RedoLayout()
 	end
+	
+	return self
 
 end
 
@@ -545,6 +550,8 @@ function newobject:SetPadding(amount)
 		self:RedoLayout()
 	end
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -563,6 +570,8 @@ function newobject:SetSpacing(amount)
 		self:RedoLayout()
 	end
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -574,6 +583,8 @@ function newobject:Clear()
 	self.children = {}
 	self:CalculateSize()
 	self:RedoLayout()
+	
+	return self
 
 end
 
@@ -587,6 +598,8 @@ function newobject:SetWidth(width)
 	self:CalculateSize()
 	self:RedoLayout()
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -598,6 +611,8 @@ function newobject:SetHeight(height)
 	self.height = height
 	self:CalculateSize()
 	self:RedoLayout()
+	
+	return self
 	
 end
 
@@ -611,6 +626,8 @@ function newobject:SetSize(width, height)
 	self.height = height
 	self:CalculateSize()
 	self:RedoLayout()
+	
+	return self
 	
 end
 
@@ -651,6 +668,8 @@ function newobject:SetAutoScroll(bool)
 		scrollbar.autoscroll = bool
 	end
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -661,6 +680,7 @@ end
 function newobject:SetButtonScrollAmount(amount)
 
 	self.buttonscrollamount = amount
+	return self
 	
 end
 
@@ -682,6 +702,7 @@ end
 function newobject:SetMouseWheelScrollAmount(amount)
 
 	self.mousewheelscrollamount = amount
+	return self
 	
 end
 
@@ -711,6 +732,8 @@ function newobject:EnableHorizontalStacking(bool)
 		self:RedoLayout()
 	end
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -732,6 +755,7 @@ end
 function newobject:SetDTScrolling(bool)
 
 	self.dtscrolling = bool
+	return self
 	
 end
 

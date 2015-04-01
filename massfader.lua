@@ -47,13 +47,13 @@ function MassFader:draw()
 	-- draw white out
 	if self.state == -1 then
 		love.graphics.setColor(255,255,255,self.wop)
-		love.graphics.quad("fill",0,0,global.w,0,global.w,global.h,0,global.h)
+		love.graphics.polygon("fill",0,0,global.w,0,global.w,global.h,0,global.h)
 		love.graphics.reset()
 	end
 	-- draw black out
 	if self.state > 0 and self.state < 5 then
 		love.graphics.setColor(0,6,10,self.op)
-		love.graphics.quad("fill",0,0,global.w,0,global.w,global.h,0,global.h)
+		love.graphics.polygon("fill",0,0,global.w,0,global.w,global.h,0,global.h)
 		love.graphics.reset()
 		love.graphics.setColor(255,255,255,self.spinop)
 		self.spin:draw()
@@ -63,7 +63,7 @@ function MassFader:draw()
 	if self.state == 5 then
 		love.graphics.draw(cardimage,self.cardx,self.cardy,math.rad(self.cardr),self.cards,self.cards,512,512)
 		love.graphics.setColor(255,255,255,self.wop)
-		love.graphics.quad("fill",0,0,global.w,0,global.w,global.h,0,global.h)
+		love.graphics.polygon("fill",0,0,global.w,0,global.w,global.h,0,global.h)
 	end
 end
 

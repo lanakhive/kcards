@@ -191,9 +191,9 @@ function MenuSystem.pItemRefresh(parent)
 end
 
 function MenuSystem.createOptions(parent)
-	local modes = love.graphics.getModes()
+	local modes = love.window.getFullscreenModes()
 	local currentMode = {}
-	currentMode.width, currentMode.height, currentMode.fullScreen = love.graphics.getMode()
+	currentMode.width, currentMode.height, currentMode.fullScreen = love.window.getMode()
 	table.sort(modes, function(a, b) return a.width*a.height < b.width*b.height end)
 	local om = {}
 	om.parentFrame = loveframes.Create("frame")
@@ -238,13 +238,13 @@ function MenuSystem.createOptions(parent)
 	om.okButton.OnClick = 
 	function ()
 		local currentMode = {}
-		currentMode.width, currentMode.height, currentMode.fullScreen = love.graphics.getMode()
+		currentMode.width, currentMode.height, currentMode.fullScreen = love.window.getMode()
 		local resChoice = om.resChoice:GetChoice()
 		local fsChoice = om.fullCheck:GetChecked()
 		for i,j in pairs(modes) do
 			if resChoice == (j.width .. "x" .. j.height) then
 				if j.width ~= currentMode.width or j.height ~= currentMode.height then
-					love.graphics.setMode(j.width, j.height, fsChoice)
+					love.window.setMode(j.width, j.height, {fullscreen = fsChoice})
 					global.w = j.width
 					global.h = j.height
 					global.ws = j.width / 800
@@ -263,7 +263,7 @@ function MenuSystem.createOptions(parent)
 			end
 		end
 		if currentMode.fullScreen ~= fsChoice then
-			love.graphics.toggleFullscreen()
+			love.window.setFullscreen(fsChoice)
 			cardPrecache()
 		end
 		global.playerName[1] = om.nameInput:GetText()
@@ -352,6 +352,10 @@ end
 
 function MenuSystem:keyreleased(key)
 	loveframes.keyreleased(key)
+end
+
+function MenuSystem:textinput(text)
+	loveframes.textinput(text)
 end
 
 return MenuSystem

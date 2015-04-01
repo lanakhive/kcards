@@ -1,6 +1,6 @@
 --[[------------------------------------------------
 	-- Love Frames - A GUI library for LOVE --
-	-- Copyright (c) 2013 Kenny Shields --
+	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
 -- scrollbutton clas
@@ -50,12 +50,12 @@ function newobject:update(dt)
 	if not hover then
 		self.down = false
 	else
-		if loveframes.hoverobject == self then
+		if loveframes.downobject == self then
 			self.down = true
 		end
 	end
 	
-	if not self.down and loveframes.hoverobject == self then
+	if not self.down and loveframes.downobject == self then
 		self.hover = true
 	end
 	
@@ -123,7 +123,7 @@ function newobject:mousepressed(x, y, button)
 			baseparent:MakeTop()
 		end
 		self.down = true
-		loveframes.hoverobject = self
+		loveframes.downobject = self
 	end
 	
 end

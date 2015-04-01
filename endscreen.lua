@@ -69,7 +69,7 @@ end
 function EndScreen:draw()
 	if not self.active then return end
 	love.graphics.setColor(255,255,255)
-	love.graphics.quad("fill",0,0,global.w,0,global.w,global.h,0,global.h)
+	love.graphics.polygon("fill",0,0,global.w,0,global.w,global.h,0,global.h)
 	love.graphics.setFont(self.font)
 
 	love.graphics.setColor(0, 0, 0, self.p.to)

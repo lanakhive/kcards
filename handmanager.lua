@@ -40,12 +40,12 @@ function HandManager:setFan()
 		rinterval = math.rad(15)
 	end
 	-- determine initial offsets for first card
-	local xoffset = self.x * global.ws - xinterval * #self.hand / 2
+	local xoffset = self.x - xinterval * #self.hand / 2
 	local roffset = -rinterval * #self.hand/2
 	-- iterate cards and set fan position
 	for i,j in ipairs(self.hand) do
 		j.tx = xoffset
-		j.ty = self.y * global.hs
+		j.ty = self.y
 		j.tr = roffset
 		-- insert a peek for current hovered card
 		if i == self.hoverindex then

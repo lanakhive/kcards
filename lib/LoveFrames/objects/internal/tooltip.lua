@@ -1,6 +1,6 @@
 --[[------------------------------------------------
 	-- Love Frames - A GUI library for LOVE --
-	-- Copyright (c) 2013 Kenny Shields --
+	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
 -- tooltip clas
@@ -112,6 +112,7 @@ function newobject:update(dt)
 		end
 	end
 	
+	textobject:SetVisible(self.show)
 	textobject:SetState(selfstate)
 	textobject:update(dt)
 	
@@ -174,6 +175,18 @@ end
 function newobject:SetFollowCursor(bool)
 
 	self.followcursor = bool
+	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetFollowCursor()
+	- desc: gets whether or not the tooltip should follow the
+			cursor
+--]]---------------------------------------------------------
+function newobject:GetFollowCursor()
+
+	return self.followcursor
 	
 end
 
@@ -187,6 +200,18 @@ function newobject:SetObject(object)
 	self.x = object.x
 	self.y = object.y
 	
+	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetObject()
+	- desc: gets the tooltip's object
+--]]---------------------------------------------------------
+function newobject:GetObject()
+
+	return self.object
+	
 end
 
 --[[---------------------------------------------------------
@@ -199,6 +224,7 @@ function newobject:SetText(text)
 	local textobject = internals[1]
 	
 	textobject:SetText(text)
+	return self
 	
 end
 
@@ -226,6 +252,7 @@ function newobject:SetTextMaxWidth(width)
 	local textobject = internals[1]
 	
 	textobject:SetMaxWidth(width)
+	return self
 	
 end
 
@@ -236,6 +263,17 @@ end
 function newobject:SetOffsetX(xoffset)
 
 	self.xoffset = xoffset
+	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetOffsetX()
+	- desc: gets the tooltip's x offset
+--]]---------------------------------------------------------
+function newobject:GetOffsetX()
+
+	return self.xoffset
 	
 end
 
@@ -246,6 +284,17 @@ end
 function newobject:SetOffsetY(yoffset)
 
 	self.yoffset = yoffset
+	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetOffsetY()
+	- desc: gets the tooltip's y offset
+--]]---------------------------------------------------------
+function newobject:GetOffsetY()
+
+	return self.yoffset
 	
 end
 
@@ -258,6 +307,18 @@ function newobject:SetOffsets(xoffset, yoffset)
 	self.xoffset = xoffset
 	self.yoffset = yoffset
 	
+	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetOffsets()
+	- desc: gets the tooltip's x and y offset
+--]]---------------------------------------------------------
+function newobject:GetOffsets()
+
+	return self.xoffset, self.yoffset
+	
 end
 
 --[[---------------------------------------------------------
@@ -267,6 +328,17 @@ end
 function newobject:SetPadding(padding)
 
 	self.padding = padding
+	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetPadding()
+	- desc: gets the tooltip's padding
+--]]---------------------------------------------------------
+function newobject:GetPadding()
+
+	return self.padding
 	
 end
 
@@ -280,6 +352,20 @@ function newobject:SetFont(font)
 	local textobject = internals[1]
 	
 	textobject:SetFont(font)
+	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetFont()
+	- desc: gets the tooltip's font
+--]]---------------------------------------------------------
+function newobject:GetFont()
+
+	local internals = self.internals
+	local textobject = internals[1]
+	
+	return textobject:GetFont()
 	
 end
 
@@ -291,5 +377,17 @@ end
 function newobject:SetFollowObject(bool)
 
 	self.followobject = bool
+	return self
+	
+end
+
+--[[---------------------------------------------------------
+	- func: GetFollowObject()
+	- desc: gets whether or not the tooltip should follow
+			its assigned object
+--]]---------------------------------------------------------
+function newobject:GetFollowObject()
+
+	return self.followobject
 	
 end

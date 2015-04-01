@@ -53,7 +53,7 @@ function love.load()
 	global.panel = love.graphics.newImage(global.resourcedir .. "/panel.png")
 	global.lh  = love.graphics.newImage(global.resourcedir .. "/lh.png")
 
-	hand = hm.create(400,global.h-50)
+	hand = hm.create(global.w/2,global.h-50)
 	pile = pm.create(400,200)
 	players = plm.create(5,8)
 	stat = sm.create(hand, pile, players, master)
@@ -106,6 +106,10 @@ end
 
 function love.keyreleased(key)
 	menu:keyreleased(key)
+end
+
+function love.textinput(text)
+	menu:textinput(text)
 end
 
 function love.draw()

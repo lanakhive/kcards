@@ -1,6 +1,6 @@
 --[[------------------------------------------------
 	-- Love Frames - A GUI library for LOVE --
-	-- Copyright (c) 2013 Kenny Shields --
+	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
 -- scrollbar class
@@ -249,7 +249,7 @@ function newobject:mousepressed(x, y, button)
 			self.clickx = x
 			self.clicky = y
 			self.dragging = true
-			loveframes.hoverobject = self
+			loveframes.downobject = self
 		end
 	end
 

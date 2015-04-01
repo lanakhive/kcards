@@ -13,7 +13,7 @@ end
 function AIMaster:dirload()
 	print("-- Loading ai...")
 	-- list the files in the ai folder
-	local files = love.filesystem.enumerate("ai")
+	local files = love.filesystem.getDirectoryItems("ai")
 	-- try to load each file
 	for i,j in pairs(files) do
 		local ok, chunk, aitable, ainame

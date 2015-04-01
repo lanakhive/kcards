@@ -1,6 +1,6 @@
 --[[------------------------------------------------
 	-- Love Frames - A GUI library for LOVE --
-	-- Copyright (c) 2013 Kenny Shields --
+	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
 -- util library
@@ -136,17 +136,10 @@ end
 --]]---------------------------------------------------------
 function loveframes.util.GetDirectoryContents(dir, t)
 
-	local version = love._version
 	local dir = dir
 	local t = t or {}
 	local dirs = {}
-	local files
-	
-	if version == "0.9.0" then
-		files = love.filesystem.getDirectoryItems(dir)
-	else
-		files = love.filesystem.enumerate(dir)
-	end
+	local files = love.filesystem.getDirectoryItems(dir)
 	
 	for k, v in ipairs(files) do
 		local isdir = love.filesystem.isDirectory(dir.. "/" ..v)
@@ -157,7 +150,13 @@ function loveframes.util.GetDirectoryContents(dir, t)
 			local extension = parts[#parts]
 			parts[#parts] = nil
 			local name = table.concat(parts)
-			table.insert(t, {path = dir, fullpath = dir.. "/" ..v, requirepath = dir .. "." ..name, name = name, extension = extension})
+			table.insert(t, {
+				path = dir, 
+				fullpath = dir.. "/" ..v, 
+				requirepath = dir:gsub("/", ".") .. "." ..name, 
+				name = name, 
+				extension = extension
+			})
 		end
 	end
 	
@@ -247,6 +246,7 @@ function loveframes.util.RemoveAll()
 	loveframes.base.internals = {}
 	
 	loveframes.hoverobject = false
+	loveframes.downobject = false
 	loveframes.modalobject = false
 	loveframes.inputobject = false
 	loveframes.hover = false
@@ -275,13 +275,7 @@ end
 --]]---------------------------------------------------------
 function loveframes.util.TableHasKey(table, key)
 
-	for k, v in pairs(table) do
-		if k == key then
-			return true
-		end
-	end
-	
-	return false
+	return table[key] ~= nil
 	
 end
 
@@ -302,8 +296,7 @@ end
 --]]---------------------------------------------------------
 function loveframes.util.GetCollisionCount()
 
-	local collisioncount = loveframes.collisioncount
-	return collisioncount
+	return loveframes.collisioncount
 
 end
 
@@ -349,4 +342,27 @@ function loveframes.util.DeepCopy(orig)
         copy = orig
     end
     return copy
+end
+
+--[[---------------------------------------------------------
+	- func: loveframes.util.GetHoverObject()
+	- desc: returns loveframes.hoverobject
+--]]---------------------------------------------------------
+function loveframes.util.GetHoverObject()
+	
+	return loveframes.hoverobject
+	
+end
+
+--[[---------------------------------------------------------
+	- func: loveframes.util.IsCtrlDown()
+	- desc: checks for ctrl, for use with multiselect, copy,
+			paste, and such. On OS X it actually looks for cmd.
+--]]---------------------------------------------------------
+function loveframes.util.IsCtrlDown()
+	if love._os == "OS X" then
+		return love.keyboard.isDown("lmeta") or love.keyboard.isDown("rmeta") or
+			love.keyboard.isDown("lgui") or love.keyboard.isDown("rgui")
+	end
+	return love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")
 end

@@ -1,6 +1,6 @@
 --[[------------------------------------------------
 	-- Love Frames - A GUI library for LOVE --
-	-- Copyright (c) 2013 Kenny Shields --
+	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
 -- tabbutton class
@@ -133,7 +133,7 @@ function newobject:mousepressed(x, y, button)
 			baseparent:MakeTop()
 		end
 		self.down = true
-		loveframes.hoverobject = self
+		loveframes.downobject = self
 	end
 	
 end

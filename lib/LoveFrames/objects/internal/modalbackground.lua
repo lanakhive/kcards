@@ -1,6 +1,6 @@
 --[[------------------------------------------------
 	-- Love Frames - A GUI library for LOVE --
-	-- Copyright (c) 2013 Kenny Shields --
+	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
 -- modalbackground class
@@ -51,6 +51,8 @@ function newobject:update(dt)
 	local update = self.Update
 	local base = loveframes.base
 	local basechildren = base.children
+	
+	self:CheckHover()
 	
 	if #basechildren > 1 then
 		if basechildren[#basechildren - 1] ~= self then

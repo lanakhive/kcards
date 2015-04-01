@@ -1,9 +1,9 @@
 --[[------------------------------------------------
 	-- Love Frames - A GUI library for LOVE --
-	-- Copyright (c) 2013 Kenny Shields --
+	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
--- panel class
+-- panel object
 local newobject = loveframes.NewObject("panel", "loveframes_object_panel", true)
 
 --[[---------------------------------------------------------

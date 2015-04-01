@@ -72,7 +72,7 @@ function PileManager:update(dt)
 end
 
 function PileManager:clickAction(x,y)
-	if math.abs(x - self.x * global.ws) < 100 and math.abs(y - self.y * global.hs) < 100 then
+	if math.abs(x - global.w/2) < 100 and math.abs(y - 200) < 100 then
 		return true
 	end
 	return false

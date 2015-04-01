@@ -1,6 +1,6 @@
 --[[------------------------------------------------
 	-- Love Frames - A GUI library for LOVE --
-	-- Copyright (c) 2013 Kenny Shields --
+	-- Copyright (c) 2012-2014 Kenny Shields --
 --]]------------------------------------------------
 
 -- base object
@@ -151,10 +151,10 @@ function newobject:mousereleased(x, y, button)
 end
 
 --[[---------------------------------------------------------
-	- func: keypressed(key)
+	- func: keypressed(key, isrepeat)
 	- desc: called when the player presses a key
 --]]---------------------------------------------------------
-function newobject:keypressed(key, unicode)
+function newobject:keypressed(key, isrepeat)
 	
 	local state = loveframes.state
 	local selfstate = self.state
@@ -280,6 +280,8 @@ function newobject:SetPos(x, y, center)
 		self.staticy = y
 	end
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -301,6 +303,8 @@ function newobject:SetX(x, center)
 	else
 		self.staticx = x
 	end
+	
+	return self
 
 end
 
@@ -323,6 +327,8 @@ function newobject:SetY(y, center)
 	else
 		self.staticy = y
 	end
+	
+	return self
 	
 end
 
@@ -410,6 +416,8 @@ function newobject:Center(area)
 		self.staticy = height/2 - self.height/2
 	end
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -428,6 +436,8 @@ function newobject:CenterX()
 		local width = parent.width
 		self.staticx = width/2 - self.width/2
 	end
+	
+	return self
 	
 end
 
@@ -448,6 +458,8 @@ function newobject:CenterY()
 		self.staticy = height/2 - self.height/2
 	end
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -462,6 +474,8 @@ function newobject:CenterWithinArea(x, y, width, height)
 	self.x = x + width/2 - selfwidth/2
 	self.y = y + height/2 - selfheight/2
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -473,6 +487,8 @@ function newobject:SetSize(width, height)
 	self.width = width
 	self.height = height
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -482,6 +498,7 @@ end
 function newobject:SetWidth(width)
 
 	self.width = width
+	return self
 	
 end
 
@@ -492,6 +509,7 @@ end
 function newobject:SetHeight(height)
 
 	self.height = height
+	return self
 	
 end
 
@@ -548,6 +566,8 @@ function newobject:SetVisible(bool)
 		end
 	end
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -580,6 +600,7 @@ function newobject:SetParent(parent)
 	self:SetState(tparent.state)
 	
 	table.insert(tparent.children, self)
+	return self
 
 end
 
@@ -619,6 +640,8 @@ function newobject:Remove()
 		end
 	end
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -644,6 +667,8 @@ function newobject:SetClickBounds(x, y, width, height)
 			v:SetClickBounds(x, y, width, height)
 		end
 	end
+	
+	return self
 	
 end
 
@@ -682,6 +707,8 @@ function newobject:RemoveClickBounds()
 		end
 	end
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -701,39 +728,8 @@ function newobject:InClickBounds()
 		return false
 	end
 	
-end
-
---[[---------------------------------------------------------
-	- func: IsTopCollision()
-	- desc: checks if the object the top most object in a
-			collision table
---]]---------------------------------------------------------
-function newobject:IsTopCollision()
-
-	local cols = loveframes.util.GetCollisions()
-	local draworder = self.draworder
-	local found = false
-	local top = true
+	return self
 	
-	for k, v in ipairs(cols) do
-		if v == self then
-			found = true
-		end
-	end
-	
-	if not found then
-		return false
-	end
-	
-	-- loop through the object's parent's children
-	for k, v in ipairs(cols) do
-		if v.draworder > draworder then
-			top = false
-		end	
-	end
-	
-	return top
-		
 end
 
 --[[---------------------------------------------------------
@@ -762,66 +758,67 @@ end
 --]]---------------------------------------------------------
 function newobject:CheckHover()
 	
-	local x, y = love.mouse.getPosition()
-	local selfcol = loveframes.util.BoundingBox(x, self.x, y, self.y, 1, self.width, 1, self.height)
-	local hoverobject = loveframes.hoverobject
-	local modalobject = loveframes.modalobject
+	local x = self.x
+	local y = self.y
+	local width = self.width
+	local height = self.height
+	local mx, my = love.mouse.getPosition()
+	local selfcol = loveframes.util.BoundingBox(mx, x, my, y, 1, width, 1, height)
 	local collisioncount = loveframes.collisioncount
-	local clickbounds = self.clickbounds
+	local curstate = loveframes.state
+	local state = self.state
+	local visible = self.visible
+	local type = self.type
+	local hoverobject = loveframes.hoverobject
 	
-	-- is the mouse inside the object?
-	if selfcol then
-		loveframes.collisioncount = collisioncount + 1
-		local top = self:IsTopCollision()
-		if top then
-			if not hoverobject then
-				self.hover = true
-			else
-				if hoverobject == self then
-					self.hover = true
-				else
-					self.hover = false
+	-- check if the mouse is colliding with the object
+	if state == curstate and visible then
+		local collide = self.collide
+		if selfcol and collide then
+			loveframes.collisioncount = collisioncount + 1
+			local clickbounds = self.clickbounds
+			if clickbounds then
+				local cx = clickbounds.x
+				local cy = clickbounds.y
+				local cwidth = clickbounds.width
+				local cheight = clickbounds.height
+				local clickcol = loveframes.util.BoundingBox(mx, cx, my, cy, 1, cwidth, 1, cheight)
+				if clickcol then
+					table.insert(loveframes.collisions, self)
 				end
-			end
-		else
-			self.hover = false
-		end
-		if clickbounds then
-			if not self:InClickBounds() then
-				self.hover = false
+			else
+				table.insert(loveframes.collisions, self)
 			end
 		end
+	end
+	
+	-- check if the object is being hovered
+	if hoverobject == self and type ~= "base" then
+		self.hover = true
 	else
 		self.hover = false
 	end
 	
-	if modalobject then
-		if modalobject ~= self then
-			local baseparent = self:GetBaseParent()
-			if baseparent ~= modalobject and self.type ~= "multichoicerow" then
-				self.hover = false
-				if self.focus then
-					self.focus = false
-				end
-			end
-		end
-	end
+	local hover = self.hover
+	local calledmousefunc = self.calledmousefunc
 	
-	-- this chunk of code handles mouse enter and exit
-	if self.hover then
+	-- check for mouse enter and exit events
+	if hover then
 		loveframes.hover = true
-		if not self.calledmousefunc then
-			if self.OnMouseEnter then
-				self.OnMouseEnter(self)
+		if not calledmousefunc then
+			local on_mouse_enter = self.OnMouseEnter
+			if on_mouse_enter then
+				on_mouse_enter(self)
 				self.calledmousefunc = true
 			else
 				self.calledmousefunc = true
 			end
 		end
 	else
-		if self.calledmousefunc then
-			if self.OnMouseExit then
-				self.OnMouseExit(self)
+		if calledmousefunc then
+			local on_mouse_exit = self.OnMouseExit
+			if on_mouse_exit then
+				on_mouse_exit(self)
 				self.calledmousefunc = false
 			else
 				self.calledmousefunc = false
@@ -958,6 +955,8 @@ function newobject:MoveToTop()
 		table.insert(pchildren, self)
 	end
 	
+	return self
+	
 end
 
 --[[---------------------------------------------------------
@@ -982,6 +981,8 @@ function newobject:SetSkin(name)
 			v:SetSkin(name)
 		end
 	end
+	
+	return self
 	
 end
 
@@ -1018,6 +1019,7 @@ end
 function newobject:SetAlwaysUpdate(bool)
 
 	self.alwaysupdate = bool
+	return self
 
 end
 
@@ -1039,6 +1041,7 @@ end
 function newobject:SetRetainSize(bool)
 
 	self.retainsize = bool
+	return self
 	
 end
 
@@ -1146,6 +1149,7 @@ function newobject:SetDrawOrder()
 
 	loveframes.drawcount = loveframes.drawcount + 1
 	self.draworder = loveframes.drawcount
+	return self
 
 end
 
@@ -1166,6 +1170,7 @@ end
 function newobject:SetProperty(name, value)
 
 	self[name] = value
+	return self
 	
 end
 
@@ -1219,6 +1224,8 @@ function newobject:SetState(name)
 			v:SetState(name)
 		end
 	end
+	
+	return self
 	
 end
 
