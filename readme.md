@@ -13,3 +13,7 @@ Klootzakken is an amazing card game that requires skill to win and also not to l
 ## Custom AI
 
 The game can load custom AIs written in Lua for the computer opponents. See [Custom AIs](customai.md) for more info.
+
+## Command Line Game
+
+The game can also be played in the terminal by running consolegame.lua using a Lua 5.1 interpreter. The LÖVE framework is not required in this case.
